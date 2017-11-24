@@ -30,18 +30,18 @@ family = "gaussian"
 pop = replicate(n = P,expr = {sample(x = c(0,1),size = C,replace = TRUE)},simplify = FALSE)
 pop_fitness = vector(mode = "numeric",length = P)
 
-# fitness
+# fitnesss
 pop_fitness = vapply(X = pop,FUN = function(x,data,family){
   ix_mod = as.logical(x)
   mod = stats::glm(data$Y~data$X[,ix_mod],family)
   stats::AIC(mod)
 },FUN.VALUE = numeric(1),data=data,family=family)
 
-if(fitness=="rank"){
-  pop_fitness = 2*rank(pop_fitness) / P*(P+1)
-}
+# sort by rank (given by formula: 2*ri / P(P+1))
+pop_rank = rank(-pop_fitness)
+pop_rank_final = (2*pop_rank) / (P*(P+1))
 
 # selection
-pop = pop
+
 
 # mutation
