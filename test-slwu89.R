@@ -47,7 +47,7 @@ pop_rank = rank(-pop_fitness)
 pop_rank_final = (2*pop_rank) / (P*(P+1))
 
 # selection
-selection_ix = sample(x = P_ix,size = 50,replace = TRUE,prob = pop_rank_final)
+selection_ix = sample(x = P_ix,size = P,replace = TRUE,prob = pop_rank_final)
 pop = pop[selection_ix]
 
 # crossover
