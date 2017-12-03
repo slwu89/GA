@@ -9,6 +9,7 @@ GA_test <- function(y,x,family,mutation=0.01,fitness="rank",P=100,tol=0.01,maxIt
   C_ix = 1:C
   odd_seq = seq(from=1,to=P,by=2) 
   even_seq = seq(from=2,to=P,by=2)
+  stop_condition = FALSE
   
   # sanity checks
   if(family=="gassian" & all(y %% 1 == 0)){cat("vector of integer responses but family 'Gaussian' error distribution selected\n")}
@@ -38,6 +39,7 @@ GA_test <- function(y,x,family,mutation=0.01,fitness="rank",P=100,tol=0.01,maxIt
     best_chromosome = pop[best_ix]
     
     # selection
+    
     if(fitness=="rank"){
       # # sort by objective function (minimum of AIC)
       # new_minimum=min(pop_fitness)
@@ -47,6 +49,12 @@ GA_test <- function(y,x,family,mutation=0.01,fitness="rank",P=100,tol=0.01,maxIt
       # #selection
       # selection_ix = sample(x = P_ix,size = P,replace = TRUE,prob = weights)
       # pop = pop[selection_ix]
+      
+      
+      # if(something){
+      #  stop_condition = TRUE
+      # }
+      }
     } else {
       # sort by rank (given by formula: 2*ri / P(P+1))
       pop_rank = rank(-pop_fitness)
@@ -76,15 +84,15 @@ GA_test <- function(y,x,family,mutation=0.01,fitness="rank",P=100,tol=0.01,maxIt
       new_pop[[i]][mutation_ix] = 1-new_pop[[1]][mutation_ix]
     }
     
-    
+    pop = new_pop
     
     
     
     
     cat("iteration ",i,"\n")
-    # if(something){
-      # break()
-    # }
+    if(i >= maxIter | stop_condition){
+      break()
+    }
   }
 }
 
