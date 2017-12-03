@@ -2,10 +2,10 @@
 
 
 GA_test <- function(y,x,family,mutation=0.01,fitness_function=stats::AIC,fitness="rank",P=100,tol=0.01,maxIter=100L){
-  
+  # browser()
   # set up parameters (stuff that is made each iteration just make once and save)
   C = ncol(x)
-  P_ix = 1:P 
+  P_ix = 1:P
   C_ix = 1:C
   odd_seq = seq(from=1,to=P,by=2) 
   even_seq = seq(from=2,to=P,by=2)
@@ -42,7 +42,7 @@ GA_test <- function(y,x,family,mutation=0.01,fitness_function=stats::AIC,fitness
     
     # selection
     
-    if(fitness=="rank"){
+    if(fitness=="weight"){
       # # sort by objective function (minimum of AIC)
       # new_minimum=min(pop_fitness)
       # ### here I use 0.01 as weights instead of 0.5 from the paper
@@ -68,21 +68,22 @@ GA_test <- function(y,x,family,mutation=0.01,fitness_function=stats::AIC,fitness
     # crossover
     new_pop = pop
     j = 1
-    for(i in 1:length(odd_seq)){
-      split = sample(x = C_ix,size = 1) # split point in chromosome
-      new_pop[[j]] = c(pop[[odd_seq[i]]][1:split],pop[[even_seq[i]]][(split+1):C])
+    for(k in 1:length(odd_seq)){
+      split = sample(x = 1:(C-1),size = 1) # split point in chromosome
+      new_pop[[j]] = c(pop[[odd_seq[k]]][1:split],pop[[even_seq[k]]][(split+1):C])
       j = j + 1
-      new_pop[[j]] = c(pop[[even_seq[i]]][1:split],pop[[odd_seq[i]]][(split+1):C])
+      new_pop[[j]] = c(pop[[even_seq[k]]][1:split],pop[[odd_seq[k]]][(split+1):C])
       j = j + 1
     }
     
     # mutation
-    for(i in 1:length(new_pop)){
+    for(k in 1:length(new_pop)){
       # sample how many mutations on this chromosome
       mutation_N = rpois(n = 1,lambda = mutation*C)
+      if(mutation_N<1){next()}
       # scatter the mutations across this chromosome
       mutation_ix = sample(x = C_ix,size = mutation_N,replace = FALSE) # we don't assume same site can mutate twice
-      new_pop[[i]][mutation_ix] = 1-new_pop[[1]][mutation_ix]
+      new_pop[[k]][mutation_ix] = 1-new_pop[[1]][mutation_ix]
     }
     
     pop = new_pop
@@ -103,6 +104,7 @@ GA_test <- function(y,x,family,mutation=0.01,fitness_function=stats::AIC,fitness
 
 #  make up some data
 library(simrel)
+set.seed(42L)
 N = 500 # number of observations
 p = 100 # number of covariates
 q = floor(p/4) # number of relevant predictors
@@ -113,4 +115,13 @@ data = simrel(n=N, p=p, m=m, q=q, relpos=ix, gamma=0.2, R2=0.75)
 y = data$Y
 x = data$X
 
-out = GA_test(y = y,x = x,family = )
+out = GA_test(y = y,x = x,family = "gaussian",maxIter = 10)
+
+best_mod = stats::glm(y~x[,as.logical(out$best_chromosome[[1]])],family = "gaussian")
+
+
+mod = lm(y~x)
+mod1 = lm(y~x[,ix])
+AIC(mod)
+AIC(mod1)
+AIC(best_mod)
