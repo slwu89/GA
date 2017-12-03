@@ -28,24 +28,51 @@ family = "gaussian"
 
 # argument sanity checks here maybe?
 
+
 # make a population of candidate solutions (use a list because we can apply over it quickly with vapply,lapply,sapply...unlike a matrix)
 pop = replicate(n = P,expr = {sample(x = c(0,1),size = C,replace = TRUE)},simplify = FALSE)
 pop_fitness = vector(mode = "numeric",length = P)
 
 # fitnesss
 # this could be parallelized (but if X and Y too large, sending out data to cores might be too inefficient)
+
+## possible parallelization 
+library(parallel)
+library(doParallel)
+library(foreach)
+nCores <-4
+registerDoParallel(nCores)
+pop_fitness <- foreach(i = pop,.verbose = FALSE) %dopar% 
+  {ix_mod=as.logical(i)
+  mod = stats::glm(data$Y~data$X[,ix_mod],family)
+  stats::AIC(mod)
+  }
+pop_fitness<-unlist(pop_fitness)
+
+# no parallel
 pop_fitness = vapply(X = pop,FUN = function(x,data,family){
   ix_mod = as.logical(x)
   mod = stats::glm(data$Y~data$X[,ix_mod],family)
   stats::AIC(mod)
 },FUN.VALUE = numeric(1),data=data,family=family)
 
-# sort by objective function (minimum of AIC)
 
+result=pop[which.min(pop_fitness)]
+### SELECTION 
+## Method one
+# sort by objective function (minimum of AIC)
+new_minimum=min(pop_fitness)
+### here I use 0.01 as weights instead of 0.5 from the paper
+relative=lapply(pop_fitness,function(x)exp(-0.01*(x-minimum)))
+weights=lapply(relative,function(x)x/sum(unlist(relative)))
+#selection
+selection_ix = sample(x = P_ix,size = P,replace = TRUE,prob = weights)
+pop = pop[selection_ix]
+
+## Method two
 # sort by rank (given by formula: 2*ri / P(P+1))
 pop_rank = rank(-pop_fitness)
 pop_rank_final = (2*pop_rank) / (P*(P+1))
-
 # selection
 selection_ix = sample(x = P_ix,size = P,replace = TRUE,prob = pop_rank_final)
 pop = pop[selection_ix]
@@ -84,3 +111,6 @@ for(i in 1:length(new_pop)){
 }
 
 pop = new_pop # keep on iterating
+
+#iteration stopping criteria
+old_minimum=new_minimum
