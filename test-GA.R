@@ -9,9 +9,8 @@ GA_test <- function(y,x,family,mutation=0.01,fitness="rank",P=100,tol=0.01,maxIt
   C_ix = 1:C
   
   # sanity checks
-  if(family=="gassian"){
-    
-  }
+  if(family=="gassian" & all(y %% 1 == 0)){cat("vector of integer responses but family 'Gaussian' error distribution selected\n")}
+  if(family=="Gamma" & any(y < 0)){stop("family 'Gamma' error distribution selected but have negative responses")}
   if(P < C | P > 2*C){
     cat("P ",P," not within suggested population size range C <= P <= 2C\n")
   }
