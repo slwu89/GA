@@ -27,6 +27,35 @@ fitness = "rank" # character in 'value' or 'rank'
 family = "gaussian"
 
 # argument sanity checks here maybe?
+# check X
+if (!is.matrix(X)) stop("X should be a matrix of numbers")
+if (!is.numeric(X)) stop("X should be a matrix of numbers")
+if (ncol(X) < 3) stop("")
+
+# check Y
+if (!is.vector(Y)) stop("Y should be a matrix of numbers")
+if (!is.numeric(X)) stop("Y should be a vector of numbers")
+
+# check Y and X 
+if (length(Y) != nrow(X)) stop("The length of Y should be the same of the number of rows of X")
+  
+# check mutation rate
+if (length(mutation) != 1) stop("Please provide only one mutation rate")
+if (mutation < 0 | mutation > 1) stop("The mutation rate should be between 0 and 1")
+
+# check population size
+if (length(P) != 1) stop("Please provide only one population size")
+if (!is.numeric(P)) stop("Population siez should be a number")
+if (!is.integer(P)) stop("Population size should be an integer")
+if (P < 5) stop("Population size should be ")
+
+# check objective function
+if (typeof(objectiveFunction) != "closure") stop("Objective function should be a closure function")
+
+# check stop/convergence rate 
+if (length(stop) != 1) stop("Please provide only one convergence rate")
+
+# check type of regression
 
 
 # make a population of candidate solutions (use a list because we can apply over it quickly with vapply,lapply,sapply...unlike a matrix)
