@@ -47,10 +47,9 @@ if (mutation < 0 | mutation > 1) stop("The mutation rate should be between 0 and
 if (length(P) != 1) stop("Please provide only one population size")
 if (!is.numeric(P)) stop("Population siez should be a number")
 if (!is.integer(P)) stop("Population size should be an integer")
-if (P < 5) stop("Population size should be ")
+if (P < ncol(X)) | P > 2*ncol(X)) stop("Population size should be large than the chromosome length and less than two times the chromosome length")
 
 # check objective function
-if (typeof(objectiveFunction) != "closure") stop("Objective function should be a closure function")
 
 # check stop/convergence rate 
 if (length(stop) != 1) stop("Please provide only one convergence rate")
