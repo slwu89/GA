@@ -91,7 +91,7 @@ result=pop[which.min(pop_fitness)]
 # sort by objective function (minimum of AIC)
 new_minimum=min(pop_fitness)
 ### here I use 0.01 as weights instead of 0.5 from the paper
-relative=lapply(pop_fitness,function(x)exp(-0.01*(x-minimum)))
+relative=lapply(pop_fitness,function(x)exp(-0.01*(x-new_minimum)))
 weights=lapply(relative,function(x)x/sum(unlist(relative)))
 #selection
 selection_ix = sample(x = P_ix,size = P,replace = TRUE,prob = weights)
