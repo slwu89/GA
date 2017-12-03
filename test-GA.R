@@ -1,7 +1,7 @@
 # test function
 
 
-GA_test <- function(y,x,family,mutation=0.01,fitness="rank",P=100,tol=0.01,maxIter=100L){
+GA_test <- function(y,x,family,mutation=0.01,fitness_function=stats::AIC,fitness="rank",P=100,tol=0.01,maxIter=100L){
   
   # set up parameters (stuff that is made each iteration just make once and save)
   C = ncol(x)
@@ -18,6 +18,7 @@ GA_test <- function(y,x,family,mutation=0.01,fitness="rank",P=100,tol=0.01,maxIt
     cat("P ",P," not within suggested population size range C <= P <= 2C\n")
   }
   if(!fitness %in% c("rank","weight")){stop("'fitness' must be either 'rank' or 'weight'")}
+  if(typeof(fitness_function)!="closure"){stop("fitness_function must be a function that returns an objective value to minimize")}
   
   # make a population of candidate solutions (use a list because we can apply over it quickly with vapply,lapply,sapply...unlike a matrix)
   new_pop = pop = replicate(n = P,expr = {sample(x = c(0,1),size = C,replace = TRUE)},simplify = FALSE)
@@ -31,11 +32,12 @@ GA_test <- function(y,x,family,mutation=0.01,fitness="rank",P=100,tol=0.01,maxIt
     pop_fitness = vapply(X = pop,FUN = function(x,data,family){
       ix_mod = as.logical(x)
       mod = stats::glm(data$Y~data$X[,ix_mod],family=family)
-      stats::AIC(mod)
+      fitness_function(mod)
     },FUN.VALUE = numeric(1),data=data,family=family)
     
     # the best fitness
     best_ix = which.min(pop_fitness)
+    best_fitness = min(pop_fitness)
     best_chromosome = pop[best_ix]
     
     # selection
@@ -54,8 +56,7 @@ GA_test <- function(y,x,family,mutation=0.01,fitness="rank",P=100,tol=0.01,maxIt
       # if(something){
       #  stop_condition = TRUE
       # }
-      }
-    } else {
+      } else {
       # sort by rank (given by formula: 2*ri / P(P+1))
       pop_rank = rank(-pop_fitness)
       pop_rank_final = (2*pop_rank) / (P*(P+1))
@@ -85,22 +86,31 @@ GA_test <- function(y,x,family,mutation=0.01,fitness="rank",P=100,tol=0.01,maxIt
     }
     
     pop = new_pop
-    
-    
-    
-    
+
     cat("iteration ",i,"\n")
     if(i >= maxIter | stop_condition){
       break()
     }
   }
+  
+  # return(NULL) # give back something
+  return(list(
+    best_chromosome=best_chromosome,
+    best_fitness = best_fitness
+  ))
 }
 
-# set up parameters
-P = 50 # number of chromosomes
-P_ix = 1:P # so we don't have to waste time making the vector over and over
-C = ncol(data$X) # chromosome length (number of sites in genome)
-C_ix = 1:C # so we don't have to waste time making the vector over and over
-mutation = 0.01 # per-site, per-generation probability of mutation
-fitness = "rank" # character in 'value' or 'rank'
-family = "gaussian"
+
+#  make up some data
+library(simrel)
+N = 500 # number of observations
+p = 100 # number of covariates
+q = floor(p/4) # number of relevant predictors
+m = q # number of relevant components
+
+ix = sample(x = 1:p,size = m)
+data = simrel(n=N, p=p, m=m, q=q, relpos=ix, gamma=0.2, R2=0.75)
+y = data$Y
+x = data$X
+
+out = GA_test(y = y,x = x,family = )
