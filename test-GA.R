@@ -12,13 +12,42 @@ GA_test <- function(y,x,family,mutation=0.01,fitness_function=stats::AIC,fitness
   stop_condition = FALSE
   
   # sanity checks
+  # check x
+  if (!is.matrix(x)) stop("x should be a matrix of numbers")
+  if (!is.numeric(x)) stop("x should be a matrix of numbers")
+  
+  # check y
+  if (!is.vector(y)) stop("y should be a matrix of numbers")
+  if (!is.numeric(y)) stop("y should be a vector of numbers")
+  
+  # check type of regression
   if(family=="gassian" & all(y %% 1 == 0)){cat("vector of integer responses but family 'Gaussian' error distribution selected\n")}
   if(family=="Gamma" & any(y < 0)){stop("family 'Gamma' error distribution selected but have negative responses")}
+  
+  # check mutation rate
+  if (length(mutation) != 1) stop("Please provide only one mutation rate")
+  if (mutation < 0 | mutation > 1) stop("The mutation rate should be between 0 and 1")
+  
+  # check population size
+  if (length(P) != 1) stop("Please provide only one population size")
+  if (!is.numeric(P)) stop("Population siez should be a number")
+  if (!is.integer(P)) stop("Population size should be an integer")
   if(P < C | P > 2*C){
     cat("P ",P," not within suggested population size range C <= P <= 2C\n")
   }
+  
+  # check maximum iteration
+  if (length(maxIter) != 1) stop("Please provide only one maximum iteration")
+  if (!is.numeric(maxIter)) stop("Maximum iteration should be a number")
+  if (!is.integer(maxIter)) stop("Maximum iteration should be an integer")
+  
+  # check tolerance rate
+  if (length(tol) != 1) stop("Please provide only one convergence rate")
+  
+  #check fitness criterion
   if(!fitness %in% c("rank","weight")){stop("'fitness' must be either 'rank' or 'weight'")}
   if(typeof(fitness_function)!="closure"){stop("fitness_function must be a function that returns an objective value to minimize")}
+  
   
   # make a population of candidate solutions (use a list because we can apply over it quickly with vapply,lapply,sapply...unlike a matrix)
   new_pop = pop = replicate(n = P,expr = {sample(x = c(0,1),size = C,replace = TRUE)},simplify = FALSE)
