@@ -112,7 +112,7 @@ GA_test <- function(y,x,family,mutation=0.01,fitness_function=stats::AIC,fitness
       if(mutation_N<1){next()}
       # scatter the mutations across this chromosome
       mutation_ix = sample(x = C_ix,size = mutation_N,replace = FALSE) # we don't assume same site can mutate twice
-      new_pop[[k]][mutation_ix] = 1-new_pop[[1]][mutation_ix]
+      new_pop[[k]][mutation_ix] = 1-new_pop[[k]][mutation_ix]
     }
     
     pop = new_pop
