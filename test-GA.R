@@ -106,17 +106,11 @@ GA_test <- function(y,x,family,mutation=0.01,ncores=0,fitness_function=stats::AI
     
     if(fitness=="weight"){
       # sort by objective function (minimum of AIC)
-      # ### here I use 0.01 as weights instead of 0.5 from the paper
-      # relative=lapply(pop_fitness,function(x)exp(-0.01*(x-minimum)))
-      # weights=lapply(relative,function(x)x/sum(unlist(relative)))
-      # #selection
-      # selection_ix = sample(x = P_ix,size = P,replace = TRUE,prob = weights)
-      # pop = pop[selection_ix]
-      
-      
-      # if(something){
-      #  stop_condition = TRUE
-      # }
+       relative=lapply(pop_fitness,function(x)exp(-0.01*(x-minimum)))
+       weights=lapply(relative,function(x)x/sum(unlist(relative)))
+      # selection
+       selection_ix = sample(x = P_ix,size = P,replace = TRUE,prob = weights)
+       pop = pop[selection_ix]
     } else {
       # sort by rank (given by formula: 2*ri / P(P+1))
       pop_rank = rank(-pop_fitness)
