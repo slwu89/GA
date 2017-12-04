@@ -1,7 +1,7 @@
 # test function
 
 
-GA_test <- function(y,x,family,mutation=0.01,fitness_function=stats::AIC,fitness="rank",P=100,tol=0.01,maxIter=100L){
+GA_test <- function(y,x,family,mutation=0.00001,ncores=0,fitness_function=stats::AIC,fitness="rank",P=100,tol=0.001,maxIter=100L){
   # browser()
   # set up parameters (stuff that is made each iteration just make once and save)
   C = ncol(x)
@@ -12,63 +12,61 @@ GA_test <- function(y,x,family,mutation=0.01,fitness_function=stats::AIC,fitness
   stop_condition = FALSE
   
   # sanity checks
-  # check x
-  if (!is.matrix(x)) stop("x should be a matrix of numbers")
-  if (!is.numeric(x)) stop("x should be a matrix of numbers")
-  
-  # check y
-  if (!is.vector(y)) stop("y should be a matrix of numbers")
-  if (!is.numeric(y)) stop("y should be a vector of numbers")
-  
-  # check type of regression
   if(family=="gassian" & all(y %% 1 == 0)){cat("vector of integer responses but family 'Gaussian' error distribution selected\n")}
   if(family=="Gamma" & any(y < 0)){stop("family 'Gamma' error distribution selected but have negative responses")}
-  
-  # check mutation rate
-  if (length(mutation) != 1) stop("Please provide only one mutation rate")
-  if (mutation < 0 | mutation > 1) stop("The mutation rate should be between 0 and 1")
-  
-  # check population size
-  if (length(P) != 1) stop("Please provide only one population size")
-  if (!is.numeric(P)) stop("Population size should be a number")
-  if (!is.integer(P)) stop("Population size should be an integer")
   if(P < C | P > 2*C){
     cat("P ",P," not within suggested population size range C <= P <= 2C\n")
   }
-  
-  # check maximum iteration
-  if (length(maxIter) != 1) stop("Please provide only one maximum iteration")
-  if (!is.numeric(maxIter)) stop("Maximum iteration should be a number")
-  if (!is.integer(maxIter)) stop("Maximum iteration should be an integer")
-  
-  # check tolerance rate
-  if (length(tol) != 1) stop("Please provide only one convergence rate")
-  
-  #check fitness criterion
   if(!fitness %in% c("rank","weight")){stop("'fitness' must be either 'rank' or 'weight'")}
   if(typeof(fitness_function)!="closure"){stop("fitness_function must be a function that returns an objective value to minimize")}
-  
-  
+  if(!is.numeric(ncores)){stop("the nubmer of cores used in a parallelization should be a number")}
   # make a population of candidate solutions (use a list because we can apply over it quickly with vapply,lapply,sapply...unlike a matrix)
   new_pop = pop = replicate(n = P,expr = {sample(x = c(0,1),size = C,replace = TRUE)},simplify = FALSE)
   pop_fitness = vector(mode = "numeric",length = P)
-  
+  #initialize stopping condition
+  old_fitness=1
   i = 0
   while(TRUE){
     i = i + 1
-    
+    if(ncores==0){
     # evaluate fitness of each chromosome
-    pop_fitness = vapply(X = pop,FUN = function(x,data,family){
-      ix_mod = as.logical(x)
-      mod = stats::glm(data$Y~data$X[,ix_mod],family=family)
+    pop_fitness = vapply(X = pop,FUN = function(xx,y,x,family){
+      ix_mod = as.logical(xx)
+      mod = stats::glm(y~x[,ix_mod],family=family)
       fitness_function(mod)
-    },FUN.VALUE = numeric(1),data=data,family=family)
-    
+    },FUN.VALUE = numeric(1),y=y,x=x,family=family)
+    }
+    else{
+    require(parallel)
+    nCores<-ncores
+    cl <- makeCluster(nCores) # by default this uses sockets
+    pop_fitness<-unlist(parLapply(cl,X=pop,fun=function(xx,y,x,family){
+      ix_mod=as.logical(xx)
+      mod = stats::glm(y~x[,ix_mod],family)
+      stats::AIC(mod)
+    },y,x,family
+    ))
+    stopCluster(cl)
+    }
     # the best fitness
     best_ix = which.min(pop_fitness)
     best_fitness = min(pop_fitness)
     best_chromosome = pop[best_ix]
+ 
+    #stopping
+    cat("iteration ",i,"\n",best_fitness,"\n")
+    if(abs((best_fitness-old_fitness)/old_fitness)<tol){
+      stop_condition=TRUE
+    }
     
+    if(i >= maxIter | stop_condition){
+      best_fitness=old_fitness
+      best_chromosome=old_chromosome
+      index=unlist(best_chromosome)
+      break()
+    }
+    old_fitness=best_fitness
+    old_chromosome=best_chromosome
     # selection
     
     if(fitness=="weight"){
@@ -85,7 +83,7 @@ GA_test <- function(y,x,family,mutation=0.01,fitness_function=stats::AIC,fitness
       # if(something){
       #  stop_condition = TRUE
       # }
-      } else {
+    } else {
       # sort by rank (given by formula: 2*ri / P(P+1))
       pop_rank = rank(-pop_fitness)
       pop_rank_final = (2*pop_rank) / (P*(P+1))
@@ -116,17 +114,14 @@ GA_test <- function(y,x,family,mutation=0.01,fitness_function=stats::AIC,fitness
     }
     
     pop = new_pop
-
-    cat("iteration ",i,"\n")
-    if(i >= maxIter | stop_condition){
-      break()
-    }
   }
   
   # return(NULL) # give back something
   return(list(
-    best_chromosome=best_chromosome,
-    best_fitness = best_fitness
+    best_chromosome = best_chromosome,
+    best_fitness = best_fitness,
+    best_model = stats::glm(y~x[,as.logical(index)],family=family),
+    count=i
   ))
 }
 
@@ -144,13 +139,16 @@ data = simrel(n=N, p=p, m=m, q=q, relpos=ix, gamma=0.2, R2=0.75)
 y = data$Y
 x = data$X
 
-out = GA_test(y = y,x = x,family = "gaussian",maxIter = 10)
+out = GA_test(y = y,x = x,family = "gaussian")
 
 best_mod = stats::glm(y~x[,as.logical(out$best_chromosome[[1]])],family = "gaussian")
-
+out<-GA_test(y = y,x = x,family = "gaussian",ncores=4)
 
 mod = lm(y~x)
 mod1 = lm(y~x[,ix])
 AIC(mod)
 AIC(mod1)
 AIC(best_mod)
+AIC(out$best_model)
+
+out$best_chromosome
