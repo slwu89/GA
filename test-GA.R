@@ -30,7 +30,7 @@ GA_test <- function(y,x,family,mutation=0.01,fitness_function=stats::AIC,fitness
   
   # check population size
   if (length(P) != 1) stop("Please provide only one population size")
-  if (!is.numeric(P)) stop("Population siez should be a number")
+  if (!is.numeric(P)) stop("Population size should be a number")
   if (!is.integer(P)) stop("Population size should be an integer")
   if(P < C | P > 2*C){
     cat("P ",P," not within suggested population size range C <= P <= 2C\n")
