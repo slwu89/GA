@@ -1,7 +1,7 @@
 # test function
 
 
-GA_test <- function(y,x,family,mutation=0.00001,ncores=0,fitness_function=stats::AIC,fitness="rank",P=100,tol=0.001,maxIter=100L){
+GA_test <- function(y,x,family,mutation=0.01,ncores=0,fitness_function=stats::AIC,fitness="rank",P=100,tol=0.0005,maxIter=100L){
   # browser()
   # set up parameters (stuff that is made each iteration just make once and save)
   C = ncol(x)
@@ -20,6 +20,7 @@ GA_test <- function(y,x,family,mutation=0.00001,ncores=0,fitness_function=stats:
   if(!fitness %in% c("rank","weight")){stop("'fitness' must be either 'rank' or 'weight'")}
   if(typeof(fitness_function)!="closure"){stop("fitness_function must be a function that returns an objective value to minimize")}
   if(!is.numeric(ncores)){stop("the nubmer of cores used in a parallelization should be a number")}
+  if(ncores<0){stop("the nubmer of cores used in a parallelization should be non negative")}
   # make a population of candidate solutions (use a list because we can apply over it quickly with vapply,lapply,sapply...unlike a matrix)
   new_pop = pop = replicate(n = P,expr = {sample(x = c(0,1),size = C,replace = TRUE)},simplify = FALSE)
   pop_fitness = vector(mode = "numeric",length = P)
@@ -28,6 +29,7 @@ GA_test <- function(y,x,family,mutation=0.00001,ncores=0,fitness_function=stats:
   i = 0
   while(TRUE){
     i = i + 1
+    
     if(ncores==0){
     # evaluate fitness of each chromosome
     pop_fitness = vapply(X = pop,FUN = function(xx,y,x,family){
@@ -36,11 +38,12 @@ GA_test <- function(y,x,family,mutation=0.00001,ncores=0,fitness_function=stats:
       fitness_function(mod)
     },FUN.VALUE = numeric(1),y=y,x=x,family=family)
     }
-    else{
+    else if(ncores>0){
     require(parallel)
     nCores<-ncores
     cl <- makeCluster(nCores) # by default this uses sockets
     pop_fitness<-unlist(parLapply(cl,X=pop,fun=function(xx,y,x,family){
+      #browser()
       ix_mod=as.logical(xx)
       mod = stats::glm(y~x[,ix_mod],family)
       stats::AIC(mod)
@@ -70,8 +73,7 @@ GA_test <- function(y,x,family,mutation=0.00001,ncores=0,fitness_function=stats:
     # selection
     
     if(fitness=="weight"){
-      # # sort by objective function (minimum of AIC)
-      # new_minimum=min(pop_fitness)
+      # sort by objective function (minimum of AIC)
       # ### here I use 0.01 as weights instead of 0.5 from the paper
       # relative=lapply(pop_fitness,function(x)exp(-0.01*(x-minimum)))
       # weights=lapply(relative,function(x)x/sum(unlist(relative)))
@@ -150,5 +152,3 @@ AIC(mod)
 AIC(mod1)
 AIC(best_mod)
 AIC(out$best_model)
-
-out$best_chromosome
