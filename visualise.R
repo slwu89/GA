@@ -96,9 +96,10 @@ library(reshape2)
 
 datMelt = lapply(out,function(x){x$AIC})
 datMelt = melt(datMelt)
+colnames(datMelt) = c("AIC","Generation")
 
 ggplot(data=datMelt) +
-  geom_point(aes(x=L1,y=value,color=value)) +
+  geom_point(aes(x=Generation,y=AIC,color=Generation)) +
   theme_bw()
 
 
