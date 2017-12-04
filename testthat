@@ -1,0 +1,31 @@
+library(testthat)
+library(simrel)
+set.seed(42L)
+N = 500 # number of observations
+p = 100 # number of covariates
+q = floor(p/4) # number of relevant predictors
+m = q # number of relevant components
+
+ix = sample(x = 1:p,size = m)
+data = simrel(n=N, p=p, m=m, q=q, relpos=ix, gamma=0.2, R2=0.75)
+y = data$Y
+x = data$X
+
+out = GA_test(y = y,x = x,family = "gaussian",maxIter = 10)
+
+test_that('GA test works',
+          expect_true(GA_test(y = y, x = x,family = "gaussian", maxIter = 10)))
+          
+test_that('GA test fails',
+          expect_false(GA_test(y = y, x = x, family = "gaussian", maxIter = 10)))
+
+test_that('GA test input warning',
+          expect_warning(GA_test(y = "something",x = x,family = "gaussian", maxIter = 10)),
+          expect_warning(GA_test(y = y,x = "something",family = "gaussian", maxIter = 10)),
+          expect_warning(GA_test(y = rep(-1,10), x = x,family = "gamma", maxIter = 10)),
+          expect_warning(GA_test(y = y,x = x, mutation = 1.5, family = "gamma", maxIter = 10)),
+          expect_warning(GA_test(y = y,x = x, P = c(10,20), family = "gamma", maxIter = 10)),
+          expect_warning(GA_test(y = y,x = x, fitness_function= "something", family = "gamma", maxIter = 10))
+          )
+
+test_that('selection function ')
