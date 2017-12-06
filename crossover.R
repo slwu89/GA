@@ -1,9 +1,14 @@
-# Crossover
+#' Crossover of Chromosomes in Genetic Algorithm 
+#' Crossover is used in genetic algorithm for optimization when two parent chromosomes recombine to produce a child chromosome for the following generation. Crossover randomly picks a location on the chrosome to split the genetic alleles of both parents and then recombines the segments of genes to produce a new chromosome. 
 #' 
-#'
-#' here is my function
-#' @param 
-#'
+#' crossover<-function(pop,odd_seq,even_seq,C)
+#' 
+#' @param pop a nested list represented the parent population of models or chromosomes
+#' @param odd_seq a sequence of odd integers. Up to P, corresponding to the the number of genes per chromosome (or covariates per model). Used for splitting of the chromosome for recombination
+#' @param even_seq a sequence of even integers. Used for splitting the chromosome for recombination.
+#' @param C a value representing the population size (number of models). Should be of class integer, corresponding to the number of columns of input matrix x for initial regression. 
+#' Author(s)
+#' Examples (?)
 #' @export
 #' 
 crossover<-function(pop,odd_seq,even_seq,C){
