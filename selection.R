@@ -1,9 +1,17 @@
-# selection
+#' Selection Of Models for Recombination
+#' Selection is used to determine parent chromosomes fitness for recombination in the genetic algorithm for model optimization. Fitness is assessed based on AIC or an inputted fitness function. AIC is used in two ways: one through rank and another through weight. Weight takes the absolute fitness to determine probability of recombination while rank uses relative ranking of fitness of models. This fitness assessment determines likelihood to 'reproduce' or carry on genetic makeup into the t+1 generation. 
 #' 
+#' selection(pop_fitness,fitness,P,P_ix)
 #'
-#' here is my function
-#' @param 
-#'
+#' 
+#' @param pop_fitness a vector indicating fitness of each chrosomosome in the current generation based on the evaluated fitness function. 
+#' @param fitness a character indicating whether to use rank or weight when comparing model fitness.
+#' @param P Population size, corresponding to the number of genes or covariates on each chromosome or model considered for recombination. 
+#' @param P_ix a sequence of integers, ending value P. 
+#' 
+#' Author(s):
+#' References: 
+#' Khalid Jebari, Mohammed Madiafi (2013) Selection Methods for Genetic Algorithms. https://www.researchgate.net/publication/259461147_Selection_Methods_for_Genetic_Algorithms. 
 #' @export
 #' 
 
