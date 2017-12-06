@@ -1,9 +1,24 @@
-# selection
+#' Select utilizes the genetic algoritim to optimize model selection. Relying on functions: selection, crossover and mutation, new populations of chromosomes correspondng to models are generated, selecting based on AIC, until the optimal model is achieved. 
+#'
+#' select(y,x,family,mutation=0.01,ncores=0,fitness_function=stats::AIC,fitness="rank",P=100,tol=0.0005,maxIter=100L)
 #' 
-#'
-#' here is my function
-#' @param 
-#'
+#' @param y a vector or matrix of responses
+#' @param x a matrix of covariates
+#' @param family a description of the error distribution to be used in the glm fitting. Default is to use gaussian.
+#' @param mutation an optional value specifying the rate at which mutation occurs in the new population.
+#' @param ncores an optional value indicating the number of cores to use in parallelization. Should be numeric.
+#' @param fitness_function optional function to evaluate model fitness. Must be of type closure. Default is to use AIC. Options: "rank" uses relative rank of models based on AIC. Option: "weight" uses absolute value of AIC to determine probability of reproduction in the preceding generation. This option should be used with caution because it can become stuck at a local minimum, as a single model with very low AIC will have large probability of reproduction. 
+#' @param P Population size, corresponding to the number of genes or covariates on each chromosome or model. 
+#' @param tol Optional value indicating relative convergence tolerance. Should be of class numeric.
+#' @param maxIter Optional value indicating the maximum number of iterations. Default is 100.
+#' Author(s):
+#' References
+#' Burnham, K. P. and D. R. Anderson. 2002. Model Selection and Multimodel Inference. Springer-Verlag, New York
+#' 
+#' Geof H. Givens, Jennifer A. Hoeting (2013) Combinatorial Optimization (italicize). Chapter 3 of Computational Statistics (italicize). 
+#' 
+#' 
+#' Examples:
 #' @export
 #' 
 

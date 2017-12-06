@@ -1,7 +1,7 @@
-#' Mutation
+#' Mutation of Chromosomes in Genetic Algoritm 
 #' mutation randomly determines if and where on the chromosome, or model, a mutation of one of the genes, or covariates occurs. This is used in the genetic algorithm to introduce randomness not present in the genetic makeup of the population. 
 #' 
-#' mutation<-function(new_pop,C,C_ix,mutation)
+#' mutation(new_pop,C,C_ix,mutation)
 #' 
 #' @param new_pop a nested list of chromosomes representing the child population. The the result of selection and crossover. 
 #' @param C a value representing the population size. Should be of class integer, corresponding to the number of columns of input matrix x for initial regression. 
