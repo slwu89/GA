@@ -7,7 +7,7 @@
 #' @export
 #' 
 ### I comment out the sanity check for checking whether y is a vector and whether P is an integer
-#Those returned error, need furthur investigate -Xinyu
+#Those returned error, need furthur investigate -Xinyu (FIXED)
 
 selection <- function(y,x,family,mutation=0.01,ncores=0,fitness_function=stats::AIC,fitness="rank",P=100,tol=0.0005,maxIter=100L){
   # set up parameters (stuff that is made each iteration just make once and save)
@@ -24,7 +24,7 @@ selection <- function(y,x,family,mutation=0.01,ncores=0,fitness_function=stats::
   if (!is.numeric(x)) stop("x should be a matrix of numbers")
   
   # check y
-  #if (!is.vector(y)) stop("y should be a matrix of numbers")
+  if (!(is.matrix(y) | is.vector(y))) stop("y should be a matrix or a vector of numbers")
   if (!is.numeric(y)) stop("y should be a vector of numbers")
   
   # check type of regression
@@ -38,7 +38,7 @@ selection <- function(y,x,family,mutation=0.01,ncores=0,fitness_function=stats::
   # check population size
   if (length(P) != 1) stop("Please provide only one population size")
   if (!is.numeric(P)) stop("Population size should be a number")
-  #if (!is.integer(P)) stop("Population size should be an integer")
+  if (round(P) != P) stop("Population size should be an integer")
   if(P < C | P > 2*C){
     cat("P ",P," not within suggested population size range C <= P <= 2C\n")
   }

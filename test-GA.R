@@ -17,7 +17,7 @@ GA_test <- function(y,x,family,mutation=0.01,ncores=0,fitness_function=stats::AI
   if (!is.numeric(x)) stop("x should be a matrix of numbers")
   
   # check y
-  if (!is.vector(y)) stop("y should be a matrix of numbers")
+  if (!(is.matrix(y) | is.vector(y))) stop("y should be a matrix or a vector of numbers")
   if (!is.numeric(y)) stop("y should be a vector of numbers")
   
   # check type of regression
@@ -31,7 +31,7 @@ GA_test <- function(y,x,family,mutation=0.01,ncores=0,fitness_function=stats::AI
   # check population size
   if (length(P) != 1) stop("Please provide only one population size")
   if (!is.numeric(P)) stop("Population size should be a number")
-  if (!is.integer(P)) stop("Population size should be an integer")
+  if (round(P) != P) stop("Population size should be an integer")
   if(P < C | P > 2*C){
     cat("P ",P," not within suggested population size range C <= P <= 2C\n")
   }
