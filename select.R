@@ -44,7 +44,7 @@ select <- function(y,x,family,mutation=0.01,ncores=0,fitness_function=stats::AIC
   # check maximum iteration
   if (length(maxIter) != 1) stop("Please provide only one maximum iteration")
   if (!is.numeric(maxIter)) stop("Maximum iteration should be a number")
-  if (!is.integer(maxIter)) stop("Maximum iteration should be an integer")
+  if (round(maxIter) != maxIter) stop("Maximum iteration should be an integer")
   
   # check tolerance rate
   if (length(tol) != 1) stop("Please provide only one convergence rate")
