@@ -8,13 +8,6 @@
 #' 
 
 select <- function(y,x,family,mutation=0.01,ncores=0,fitness_function=stats::AIC,fitness="rank",P=100,tol=0.0005,maxIter=100L){
-  # set up parameters (stuff that is made each iteration just make once and save)
-  C = ncol(x) #number of chromosomes (models considered)
-  P_ix = 1:P #population sequence 
-  C_ix = 1:C #chromosome sequence
-  odd_seq = seq(from=1,to=P,by=2) 
-  even_seq = seq(from=2,to=P,by=2)
-  stop_condition = FALSE
   
   # sanity checks
   # check x
@@ -37,9 +30,6 @@ select <- function(y,x,family,mutation=0.01,ncores=0,fitness_function=stats::AIC
   if (length(P) != 1) stop("Please provide only one population size")
   if (!is.numeric(P)) stop("Population size should be a number")
   if (round(P) != P) stop("Population size should be an integer")
-  if(P < C | P > 2*C){
-    cat("P ",P," not within suggested population size range C <= P <= 2C\n")
-  }
   
   # check maximum iteration
   if (length(maxIter) != 1) stop("Please provide only one maximum iteration")
@@ -57,6 +47,19 @@ select <- function(y,x,family,mutation=0.01,ncores=0,fitness_function=stats::AIC
   if(!is.numeric(ncores)){stop("the nubmer of cores used in a parallelization should be a number")}
   if(ncores<0){stop("the number of cores used in a parallelization should be non negative")}
   
+  
+  # set up parameters (stuff that is made each iteration just make once and save)
+  C = ncol(x) #number of chromosomes (models considered)
+  P_ix = 1:P #population sequence 
+  C_ix = 1:C #chromosome sequence
+  odd_seq = seq(from=1,to=P,by=2) 
+  even_seq = seq(from=2,to=P,by=2)
+  stop_condition = FALSE
+  
+  # check C
+  if(P < C | P > 2*C){
+    cat("P ",P," not within suggested population size range C <= P <= 2C\n")
+  }
   
   # make a population of candidate solutions (use a list because we can apply over it quickly with vapply,lapply,sapply...unlike a matrix)
   new_pop = pop = replicate(n = P, expr = {sample(x = c(0,1), size = C, replace = TRUE)}, simplify = FALSE)

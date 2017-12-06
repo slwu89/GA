@@ -13,14 +13,16 @@ y = data$Y
 x = data$X
 
 test_that('select works',
-          expect_true(select(y = y, x = x,family = "gaussian", maxIter = 10)))
+          expect_that(select(y = y, x = x,family = "gaussian", maxIter = 100)$count, is_less_than(100)))
 
 test_that('select fails',
-          expect_false(select(y = y, x = x, family = "gaussian", maxIter = 10)))
+          expect_that(select(y = y, x = x, family = "gaussian", maxIter = 5)$count, equals(5)))
 
-test_that('select input warning',
-          expect_warning(select(y = y,x = "something",family = "gaussian", maxIter = 10)),
-          expect_warning(select(y = rep(-1,10), x = x,family = "gamma", maxIter = 10)),
-          expect_warning(select(y = y,x = x, P = c(10,20), family = "gamma", maxIter = 10)),
-          expect_warning(select(y = y,x = x, fitness_function= "something", family = "gamma", maxIter = 10))
-)
+test_that('select input error', {
+          expect_error(select(y = y,x = "something",family = "gaussian", maxIter = 10))
+          expect_error(select(y = rep(-1,10), x = x,family = "gamma", maxIter = 10))
+          expect_error(select(y = y,x = x, P = c(10,20), family = "gaussian", maxIter = 10))
+          expect_error(select(y = y,x = x, fitness_function= "something", family = "gaussian", maxIter = 10))
+})
+
+
