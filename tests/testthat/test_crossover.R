@@ -1,13 +1,24 @@
 context("crossover")
 
-library(simrel)
-set.seed(42L)
-N = 500 # number of observations
-p = 100 # number of covariates
-q = floor(p/4) # number of relevant predictors
-m = q # number of relevant components
+odd_seq_test = seq(from=1,to=100,by=2) 
+even_seq_test = seq(from=2,to=100,by=2)
+selection_ix_test = c(45,27,80,86,85,20,67,54,13,13,54,74,67,67,13,3,42,57,48,17,31,59,3,43,12,100,76,37,38,45,49,80,45,56,55,40,18,67,57,38,38,41,97,24,2,46,40,13,65,38,40,70,49,80,31,51,38,37,45,88,83,52,95,62,49,31,91,54,64,2,70,29,96,86,32,86,58,43,33,40,43,78,83,46,83,74,73,7,93,90,7,50,100,16,24,96,24,46,97,58)
+pop_test = replicate(n = 100, expr = {sample(x = c(0,1), size = 100, replace = TRUE)}, simplify = FALSE)
+pop_test = pop_test[selection_ix_test]
 
-ix = sample(x = 1:p,size = m)
-data = simrel(n=N, p=p, m=m, q=q, relpos=ix, gamma=0.2, R2=0.75)
-y = data$Y
-x = data$X
+test_that('crossover works', {
+  expect_that(crossover(pop_test, odd_seq_test, even_seq_test, 100), is_a("list"))
+  expect_length(crossover(pop_test, odd_seq_test, even_seq_test, 100), 100)
+  expect_that(crossover(pop_test, odd_seq_test, even_seq_test, 100)[[1]], is_a("numeric"))
+  expect_length(crossover(pop_test, odd_seq_test, even_seq_test, 100)[[1]], 100)
+})
+
+# test_that('crossover fails',
+#          expect_that(crossover(),)
+
+test_that('crossover input error', {
+  expect_error(crossover(pop = "character", odd_seq_test, even_seq_test, 100))
+  # expect_error(crossover(pop_test, "character", even_seq_test, 100)) 
+  # expect_error(crossover(pop_test, odd_seq_test, even_seq = "character", 100))
+  # these two do not give error
+})
