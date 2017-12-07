@@ -8,6 +8,9 @@
 #' @param mutation an optional value specifying the rate at which mutation occurs in the new population.
 #' @param ncores an optional value indicating the number of cores to use in parallelization. Should be numeric.
 #' @param fitness_function optional function to evaluate model fitness. Must be of type closure. Default is to use AIC. Options: "rank" uses relative rank of models based on AIC. Option: "weight" uses absolute value of AIC to determine probability of reproduction in the preceding generation. This option should be used with caution because it can become stuck at a local minimum, as a single model with very low AIC will have large probability of reproduction. 
+#' @param k size of disjoint subset for \code{\link{selection_tournament}} (must be smaller than P and whose quotient with P is 0, eg; P mod k = 0)
+#' @param fitness type of selection to use, must be character 'fitness' corresponding to \code{\link{selection}} or 'tournament' corresponding to \code{\link{selection_tournament}}
+#' @param selection
 #' @param P Population size, corresponding to the number of genes or covariates on each chromosome or model. 
 #' @param tol Optional value indicating relative convergence tolerance. Should be of class numeric.
 #' @param maxIter Optional value indicating the maximum number of iterations. Default is 100.
@@ -22,7 +25,7 @@
 #' @export
 #' 
 
-select <- function(y,x,family,mutation=0.01,ncores=0,fitness_function=stats::AIC,fitness="rank",P=100,tol=0.0005,maxIter=100L){
+select <- function(y,x,family,mutation=0.01,ncores=0,fitness_function=stats::AIC,k,fitness="rank",selection="fitness",P=100,tol=0.0005,maxIter=100L){
   
   # sanity checks
   # check x
@@ -145,7 +148,12 @@ select <- function(y,x,family,mutation=0.01,ncores=0,fitness_function=stats::AIC
     #old_fitness=best_fitness
     #old_chromosome=best_chromosome
     
-    selection_ix<-selection(pop_fitness,fitness,P,P_ix)
+    if(selection=="fitness"){
+      selection_ix<-selection(pop_fitness,fitness,P,P_ix)
+    } else {
+      selection_ix<-selection_tournament(pop_fitness,fitness,P,P_ix,k)
+    }
+    
     pop = pop[selection_ix]
     # crossover
     new_pop<-crossover(pop,odd_seq,even_seq,C)
