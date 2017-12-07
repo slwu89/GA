@@ -69,7 +69,7 @@ selection_tournament <- function(pop_fitness,fitness,P,P_ix,k){
   while(any(is.nan(selection_ix))){
     random_partition = split(x = P_ix,f = sample(x = P_ix,size = P/k,replace = FALSE))
     champions = vapply(X = random_partition,FUN = function(x){
-      x[order(pop_fitness[x],decreasing = TRUE)][1]
+      x[order(weights[x],decreasing = TRUE)][1]
     },FUN.VALUE = integer(1),USE.NAMES = FALSE)
     i = which(is.nan(selection_ix))[1]
     selection_ix[i:(i+k-1)] = champions

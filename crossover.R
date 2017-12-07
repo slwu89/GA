@@ -4,23 +4,32 @@
 #' crossover(pop,odd_seq,even_seq,C)
 #' 
 #' @param pop a nested list represented the parent population of models or chromosomes
-#' @param odd_seq a sequence of odd integers. Up to P, corresponding to the the number of genes per chromosome (or covariates per model). Used for splitting of the chromosome for recombination
-#' @param even_seq a sequence of even integers. Used for splitting the chromosome for recombination.
+#' @param P_combn all combinations of 
 #' @param C a value representing the population size (number of models). Should be of class integer, corresponding to the number of columns of input matrix x for initial regression. 
 #' Author(s)
 #' Examples (?)
 #' @export
 #' 
-crossover<-function(pop,odd_seq,even_seq,C){
+crossover<-function(pop,P_combn,P,C){
   new_pop = pop
+  pairs = P_combn[sample(x = 1:length(P_combn),size = P,replace = FALSE)]
+  
   j = 1
-  for(k in 1:length(odd_seq)){
+  for(i in pairs){
     split = sample(x = 1:(C-1), size = 1) # split point in chromosome
-    #recombination
-    new_pop[[j]] = c(pop[[odd_seq[k]]][1:split], pop[[even_seq[k]]][(split+1):C])
-    j = j + 1
-    new_pop[[j]] = c(pop[[even_seq[k]]][1:split], pop[[odd_seq[k]]][(split+1):C])
+    new_pop[[j]] = c(pop[[i[1]]][1:split], pop[[i[2]]][(split+1):C])
     j = j + 1
   }
+  
+  
+  # j = 1
+  # for(k in 1:length(odd_seq)){
+  #   split = sample(x = 1:(C-1), size = 1) # split point in chromosome
+  #   #recombination
+  #   new_pop[[j]] = c(pop[[odd_seq[k]]][1:split], pop[[even_seq[k]]][(split+1):C])
+  #   j = j + 1
+  #   new_pop[[j]] = c(pop[[even_seq[k]]][1:split], pop[[odd_seq[k]]][(split+1):C])
+  #   j = j + 1
+  # }
   return(new_pop)
 }

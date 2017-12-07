@@ -70,8 +70,9 @@ select <- function(y,x,family,mutation=0.01,ncores=0,fitness_function=stats::AIC
   C = ncol(x) #number of chromosomes (models considered)
   P_ix = 1:P #population sequence 
   C_ix = 1:C #chromosome sequence
-  odd_seq = seq(from=1,to=P,by=2) 
-  even_seq = seq(from=2,to=P,by=2)
+  # odd_seq = seq(from=1,to=P,by=2) 
+  # even_seq = seq(from=2,to=P,by=2)
+  P_combn = combn(x = 1:P,m = 2,simplify = FALSE)
   stop_condition = FALSE
   
   # check C
@@ -80,7 +81,13 @@ select <- function(y,x,family,mutation=0.01,ncores=0,fitness_function=stats::AIC
   }
   
   # make a population of candidate solutions (use a list because we can apply over it quickly with vapply,lapply,sapply...unlike a matrix)
-  new_pop = pop = replicate(n = P, expr = {sample(x = c(0,1), size = C, replace = TRUE)}, simplify = FALSE)
+  new_pop = pop = replicate(n = P, expr = {
+    chromosome = sample(x = c(0,1), size = C, replace = TRUE)
+    if(all(chromosome==0)){
+      chromosome[sample(x = C_ix,size = 1,replace = FALSE)] = 1L
+    }
+    return(chromosome)
+  }, simplify = FALSE)
   pop_fitness = vector(mode = "numeric", length = P)
   
   #initialize stopping condition
@@ -156,10 +163,12 @@ select <- function(y,x,family,mutation=0.01,ncores=0,fitness_function=stats::AIC
     
     pop = pop[selection_ix]
     # crossover
-    new_pop<-crossover(pop,odd_seq,even_seq,C)
+    new_pop<-crossover(pop,P_combn,P,C)
     
     # mutation
     pop<-mutation(new_pop,C,C_ix,mutation)
+    
+    
   }
   
   # return(NULL) # give back something
