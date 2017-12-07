@@ -181,3 +181,16 @@ AIC(mod)
 AIC(mod1)
 AIC(best_mod)
 AIC(out$best_model)
+
+
+out1 = select(y = y,x = x,family = "gaussian",mutation = 0.01,ncores = 0,k = 20,fitness = "rank",selection = "tournament",P = 100)
+AIC(out1$best_model)
+
+out2 = select(y = y,x = x,family = "gaussian",mutation = 0.01,ncores = 0,k = 20,fitness = "rank",selection = "fitness",P = 100)
+
+
+
+
+x = as.matrix(mtcars[,c("cyl","disp","hp","drat","wt")])
+y = as.matrix(mtcars$mpg)
+out_Cars = select(y = y,x = x,family = "gaussian",ncores = 0,P=20)

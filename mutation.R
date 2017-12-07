@@ -12,8 +12,6 @@
 #' @export
 #' 
 mutation<-function(new_pop,C,C_ix,mutation){
-  #temp<-new_pop
-  #C_ix = 1:C
   for(k in 1:length(new_pop)){
     # sample how many mutations on this chromosome
     mutation_N = rpois(n = 1, lambda = mutation*C) #rpois for rarity 
@@ -23,6 +21,16 @@ mutation<-function(new_pop,C,C_ix,mutation){
     # scatter the mutations across this chromosome
     mutation_ix = sample(x = C_ix,size = mutation_N,replace = FALSE) # we don't assume          same site can mutate twice
     new_pop[[k]][mutation_ix] = 1 - new_pop[[k]][mutation_ix] #changes value 0 or 1
+  }
+  
+  # check if any all-0 chromosome
+  c_sums = sapply(X = new_pop,FUN = sum)
+  if(any(c_sums==0)){
+    ix = which(c_sums==0)
+    for(i in ix){
+      cat("DEBUG: putting a random one in the chromosome!\n")
+      new_pop[[i]][sample(x = C_ix,size = 1,replace = FALSE)] = 1L
+    }
   }
   return(new_pop)
 }
