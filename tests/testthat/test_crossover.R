@@ -13,12 +13,6 @@ test_that('crossover works', {
   expect_length(crossover(pop_test, odd_seq_test, even_seq_test, 100)[[1]], 100)
 })
 
-# test_that('crossover fails',
-#          expect_that(crossover(),)
-
 test_that('crossover input error', {
   expect_error(crossover(pop = "character", odd_seq_test, even_seq_test, 100))
-  # expect_error(crossover(pop_test, "character", even_seq_test, 100)) 
-  # expect_error(crossover(pop_test, odd_seq_test, even_seq = "character", 100))
-  # these two do not give error
 })

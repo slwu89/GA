@@ -16,9 +16,6 @@ test_that('mutation works', {
   expect_length(mutation(new_pop_test, 100, 1:100, 0.01)[[1]], 100)
 })
 
-# test_that('mutation fails',
-#          expect_that(mutation(),)
-
 test_that('mutation input error', {
   expect_error(mutation(new_pop = "character", 100, 1:100, 0.01))
   expect_error(mutation(new_pop_test, 100, 1:100, 1.5)) # mutation rate larger than 1
