@@ -89,7 +89,7 @@ data = simrel(n=N, p=p, m=m, q=q, relpos=ix, gamma=0.2, R2=0.75)
 y = data$Y
 x = data$X
 
-out = GA_test(y = y,x = x,family = "gaussian",maxIter = 50)
+out = GA_test(y = y,x = x,family = "gaussian",maxIter = 100)
 
 library(ggplot2)
 library(reshape2)
@@ -100,6 +100,7 @@ colnames(datMelt) = c("AIC","Generation")
 
 ggplot(data=datMelt) +
   geom_point(aes(x=Generation,y=AIC,color=Generation)) +
+  geom_smooth(aes(x=Generation,y=AIC)) +
   theme_bw()
 
 

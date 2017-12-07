@@ -19,9 +19,7 @@ selection <- function(pop_fitness,fitness,P,P_ix){
     # sort by objective function (minimum of AIC)
     minimum=min(pop_fitness)
     relative = vapply(X = pop_fitness,FUN = function(x){exp(-0.01*(x-minimum))},FUN.VALUE = numeric(1),USE.NAMES = FALSE)
-    # relative = lapply(pop_fitness, function(x) exp(-0.01*(x-minimum))) #minimum?
     weights = vapply(X = relative,FUN = function(x){x/sum(relative)},FUN.VALUE = numeric(1))
-    # weights  = lapply(relative, function(x) x / sum(unlist(relative)))
     # selection
     selection_ix = sample(x = P_ix, size = P, replace = TRUE, prob = weights)
   } 
@@ -40,7 +38,7 @@ selection <- function(pop_fitness,fitness,P,P_ix){
 #' Tournament Selection Of Models for Recombination
 #' Selection is used to determine parent chromosomes fitness for recombination in the genetic algorithm for model optimization. Fitness is assessed based on AIC or an inputted fitness function. AIC is used in two ways: one through rank and another through weight. Weight takes the absolute fitness to determine probability of recombination while rank uses relative ranking of fitness of models. This fitness assessment determines likelihood to 'reproduce' or carry on genetic makeup into the t+1 generation. 
 #' 
-#' selection(pop_fitness,fitness,P,P_ix)
+#' selection(pop_fitness,fitness,P,P_ix,k)
 #'
 #' 
 #' @param pop_fitness a vector indicating fitness of each chrosomosome in the current generation based on the evaluated fitness function. 
@@ -59,8 +57,8 @@ selection_tournament <- function(pop_fitness,fitness,P,P_ix,k){
   if(fitness == "weight"){
     # sort by objective function (minimum of AIC)
     minimum=min(pop_fitness)
-    relative = lapply(pop_fitness, function(x) exp(-0.01*(x-minimum))) #minimum?
-    weights  = lapply(relative, function(x) x / sum(unlist(relative)))
+    relative = vapply(X = pop_fitness,FUN = function(x){exp(-0.01*(x-minimum))},FUN.VALUE = numeric(1),USE.NAMES = FALSE)
+    weights = vapply(X = relative,FUN = function(x){x/sum(relative)},FUN.VALUE = numeric(1))
   } else {
     # sort by rank (given by formula: 2*ri / P(P+1))
     pop_rank = rank(-pop_fitness)
@@ -69,7 +67,7 @@ selection_tournament <- function(pop_fitness,fitness,P,P_ix,k){
   # implement tournament
   selection_ix = rep(NaN,P)
   while(any(is.nan(selection_ix))){
-    random_partition = split(x = P_ix,f = sample(x = P_ix,size = k,replace = FALSE))
+    random_partition = split(x = P_ix,f = sample(x = P_ix,size = P/k,replace = FALSE))
     champions = vapply(X = random_partition,FUN = function(x){
       x[order(pop_fitness[x],decreasing = TRUE)][1]
     },FUN.VALUE = integer(1),USE.NAMES = FALSE)
