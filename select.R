@@ -37,7 +37,7 @@ select <- function(y,x,family,mutation=0.01,ncores=0,fitness_function=stats::AIC
   if (!is.numeric(x)) stop("x should be a matrix of numbers")
   
   # check y
-  if (!is.matrix(y)) stop("y should be a matrix of numbers")
+  if (!(is.vector(y) | is.matrix(y))) stop("y should be a matrix or a vector of numbers")
   if (!is.numeric(y)) stop("y should be a vector of numbers")
   
   # check type of regression
