@@ -114,22 +114,22 @@ select <- function(y,x,family,mutation=0.01,ncores=0,fitness_function=stats::AIC
     best_chromosome = pop[best_ix]
     
     #stopping condition
-    #cat("iteration ",i,"\n",best_fitness,"\n")
+    cat("iteration ",i,"\n",best_fitness,"\n")
     #if( abs((best_fitness-old_fitness) / old_fitness) < tol){ #relative change in fitness
       #stop_condition=TRUE
     #}
-    #old_fitness=min(hist_fit)
-    #hist_fit=c(hist_fit,best_fitness)
     
     #stopping condition
-    cat("iteration ",i,"\n",best_fitness,"\n")
     if(i>1){
     if ((abs(min(hist_fit)-best_fitness)/abs(best_fitness))< tol){ 
       #print(i)  
       stop_condition=TRUE
       }
     }
+    
     if(i>=maxIter | stop_condition){
+      #best_fitness=old_fitness
+      #best_chromosome=old_chromosome
       index=unlist(best_chromosome)
       break()
     }
