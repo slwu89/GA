@@ -81,11 +81,11 @@ select <- function(y,x,family,mutation=0.01,ncores=0,fitness_function=stats::AIC
   pop_fitness = vector(mode = "numeric", length = P)
   
   #initialize stopping condition
-  old_fitness = 1
+  #old_fitness = 1
   i = 0
+  hist_fit=vector(mode="numeric")
   while(TRUE){
     i = i + 1
-    
     if(ncores == 0){
       # evaluate fitness of each chromosome
       pop_fitness = vapply(X = pop,FUN = function(xx, y, x, family){
@@ -105,6 +105,7 @@ select <- function(y,x,family,mutation=0.01,ncores=0,fitness_function=stats::AIC
         fitness_function(mod)
       }, y, x, family))
       stopCluster(cl)
+      #cat('para',"\n",pop_fitness,"\n",i)
     }
     
     # chromosome/model with the best fitness
@@ -113,21 +114,36 @@ select <- function(y,x,family,mutation=0.01,ncores=0,fitness_function=stats::AIC
     best_chromosome = pop[best_ix]
     
     #stopping condition
-    cat("iteration ",i,"\n",best_fitness,"\n")
-    if( abs((best_fitness-old_fitness) / old_fitness) < tol){ #relative change in fitness
-      stop_condition=TRUE
-    }
+    #cat("iteration ",i,"\n",best_fitness,"\n")
+    #if( abs((best_fitness-old_fitness) / old_fitness) < tol){ #relative change in fitness
+      #stop_condition=TRUE
+    #}
+    #old_fitness=min(hist_fit)
+    #hist_fit=c(hist_fit,best_fitness)
     
-    if(i >= maxIter | stop_condition){
-      best_fitness=old_fitness
-      best_chromosome=old_chromosome
+    #stopping condition
+    cat("iteration ",i,"\n",best_fitness,"\n")
+    if(i>1){
+    if ((abs(min(hist_fit)-best_fitness)/abs(best_fitness))< tol){ 
+      #print(i)  
+      stop_condition=TRUE
+      }
+    }
+    if(i>=maxIter | stop_condition){
       index=unlist(best_chromosome)
       break()
     }
+    hist_fit<-c(hist_fit,best_fitness)
+    #if(i >= maxIter | stop_condition){
+    #  best_fitness=old_fitness
+    #  best_chromosome=old_chromosome
+    #  index=unlist(best_chromosome)
+    #  break()
+    #}
     
     #reiterate if not stopping
-    old_fitness=best_fitness
-    old_chromosome=best_chromosome
+    #old_fitness=best_fitness
+    #old_chromosome=best_chromosome
     
     selection_ix<-selection(pop_fitness,fitness,P,P_ix)
     pop = pop[selection_ix]
@@ -140,6 +156,7 @@ select <- function(y,x,family,mutation=0.01,ncores=0,fitness_function=stats::AIC
   
   # return(NULL) # give back something
   #goes all the way to max iteration, failing message?
+  
   return(list(
     best_chromosome = best_chromosome,
     best_fitness = best_fitness,
