@@ -2,3 +2,9 @@
 
 export(crossover)
 export(mutation)
+<<<<<<< HEAD
+=======
+export(select)
+export(selection)
+export(selection_tournament)
+>>>>>>> 3778fe96569dd1c7102a3c9800aa5252174c779b
