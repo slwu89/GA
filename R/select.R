@@ -25,6 +25,7 @@
 #' @param P Population size, corresponding to the number of genes or covariates on each chromosome or model.
 #' @param tol Optional value indicating relative convergence tolerance. Should be of class numeric.
 #' @param maxIter Optional value indicating the maximum number of iterations. Default is 100.
+#' @param k size of disjoin subset (must be smaller than P and whose quotient with P is 0, eg; P mod k = 0)
 #'
 #'  * References
 #'  1. Burnham, K. P. and D. R. Anderson. 2002. Model Selection and Multimodel Inference. Springer-Verlag, New York
@@ -34,14 +35,14 @@
 #'
 #' @export
 select <- function(y,x,family,k,P,mutation=0.01,ncores=0,fitness_function=stats::AIC,fitness="rank",selection="fitness",tol=0.0005,maxIter=100L){
-  # set up parameters (stuff that is made each iteration just make once and save)
-  C = ncol(x) #number of chromosomes (models considered)
-  P_ix = 1:P #population sequence
-  C_ix = 1:C #chromosome sequence
-  # odd_seq = seq(from=1,to=P,by=2)
-  # even_seq = seq(from=2,to=P,by=2)
-  P_combn = combn(x = 1:P,m = 2,simplify = FALSE)
-  stop_condition = FALSE
+  #set up parameters (stuff that is made each iteration just make once and save)
+  #C = ncol(x) #number of chromosomes (models considered)
+  #P_ix = 1:P #population sequence
+  #C_ix = 1:C #chromosome sequence
+  #odd_seq = seq(from=1,to=P,by=2)
+  #even_seq = seq(from=2,to=P,by=2)
+  #P_combn = combn(x = 1:P,m = 2,simplify = FALSE)
+  #stop_condition = FALSE
 
   # sanity checks
   # check x
@@ -64,9 +65,9 @@ select <- function(y,x,family,k,P,mutation=0.01,ncores=0,fitness_function=stats:
   if (length(P) != 1) stop("Please provide only one population size")
   if (!is.numeric(P)) stop("Population size should be a number")
   if (round(P) != P) stop("Population size should be an integer")
-  if(P < C | P > 2*C){
-    cat("P ",P," not within suggested population size range C <= P <= 2C\n")
-  }
+  #if(P < C | P > 2*C){
+  #  cat("P ",P," not within suggested population size range C <= P <= 2C\n")
+  #}
 
   # check maximum iteration
   if (length(maxIter) != 1) stop("Please provide only one maximum iteration")
@@ -93,9 +94,10 @@ select <- function(y,x,family,k,P,mutation=0.01,ncores=0,fitness_function=stats:
   # even_seq = seq(from=2,to=P,by=2)
   P_combn = combn(x = 1:P,m = 2,simplify = FALSE)
   stop_condition = FALSE
+  hist_fit=vector(mode="numeric")
 
   # check C
-  if(P < C | P > 2*C){
+  if(P <= C | P >= 2*C){
     cat("P ",P," not within suggested population size range C <= P <= 2C\n")
   }
 
@@ -142,21 +144,32 @@ select <- function(y,x,family,k,P,mutation=0.01,ncores=0,fitness_function=stats:
     best_chromosome = pop[best_ix]
 
     #stopping condition
-    cat("iteration ",i,"\n",best_fitness,"\n")
-    if( abs((best_fitness-old_fitness) / old_fitness) < tol){ #relative change in fitness
-      stop_condition=TRUE
+    #cat("iteration ",i,"\n",best_fitness,"\n")
+    #if( abs((best_fitness-old_fitness) / old_fitness) < tol){ #relative change in fitness
+    #  stop_condition=TRUE
+    #}
+
+    #stopping condition
+    cat("iteration",i,"\n",'Fitness Scores',best_fitness,"\n")
+    if(i>1){
+      if ((abs(min(hist_fit)-best_fitness)/abs(best_fitness))< tol){
+        #print(i)
+        stop_condition=TRUE
+      }
     }
 
     if(i >= maxIter | stop_condition){
-      best_fitness=old_fitness
-      best_chromosome=old_chromosome
+      #best_fitness=old_fitness
+      #best_chromosome=old_chromosome
       index=unlist(best_chromosome)
       break()
     }
 
+    hist_fit<-c(hist_fit,best_fitness)
+
     #reiterate if not stopping
-    old_fitness=best_fitness
-    old_chromosome=best_chromosome
+    #old_fitness=best_fitness
+    #old_chromosome=best_chromosome
 
     # selection
     switch(selection,
