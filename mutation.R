@@ -7,8 +7,8 @@
 #' @param C a value representing the population size. Should be of class integer, corresponding to the number of columns of input matrix x for initial regression. 
 #' @param  C_ix a sequence of integers from 1 to number of models considered for mutation (C). 
 #' @param  mutation a value indicating the rate at which mutation should occur. Input as rate parameter lambda, or rpois for generating indices of chromosome list where mutation occurs. 
-#' Author(s):
-#' Examples (?)
+#' Author(s): Sean Wu, Luna Luan, Xinyu Liu, and Nina Magnuson.
+#' 
 #' @export
 #' 
 mutation<-function(new_pop,C,C_ix,mutation){

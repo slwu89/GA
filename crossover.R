@@ -6,8 +6,8 @@
 #' @param pop a nested list represented the parent population of models or chromosomes
 #' @param P_combn all combinations of 
 #' @param C a value representing the population size (number of models). Should be of class integer, corresponding to the number of columns of input matrix x for initial regression. 
-#' Author(s)
-#' Examples (?)
+#' Author(s) Sean Wu, Luna Luan, Xinyu Liu, and Nina Magnuson.
+#' 
 #' @export
 #' 
 crossover<-function(pop,P_combn,P,C){
