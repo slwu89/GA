@@ -18,6 +18,7 @@
 #' AIC is used in two ways: one through rank \eqn{\frac{2\ r_{i}}{P(P+1)}} and another through AIC weights.
 #' Weight takes the absolute fitness to determine probability of recombination while rank uses relative ranking of fitness of models.
 #'  * Selection of chromosomes that contribute their genes to generation t+1 done by resampling the population with probability proportional to weight or rank, with replacement.
+#'  * An alternative, using tournament selection, is available \code{\link{selection_tournament}}
 #'
 #' @param pop_fitness a vector indicating fitness of each chrosomosome in the current generation based on the evaluated fitness function.
 #' @param fitness a character indicating whether to use rank or weight when comparing model fitness.

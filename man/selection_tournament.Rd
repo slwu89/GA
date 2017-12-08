@@ -24,9 +24,10 @@ Khalid Jebari, Mohammed Madiafi (2013) Selection Methods for Genetic Algorithms.
 \description{
 Standard selection is used to determine parent chromosomes fitness for recombination in the genetic algorithm for model optimization.
 Fitness is assessed based on AIC or an inputted fitness function (must be function to minimize).
-AIC is used in two ways: one through rank and another through weight.
+AIC is used in two ways: one through rank \eqn{\frac{2\ r_{i}}{P(P+1)}} and another through AIC weights.
 \enumerate{
-\item In tournament selection the population is first divded into a random partition of subsets of equal size k.
-\item Then within each partition we select the most fit chromosome for propagation
+\item in tournament selection the population is first divded into a random partition of subsets of equal size k
+\item then within each partition we select the most fit chromosome for propagation in the new population
+\item iterate until we have a new population equal in size to the old population
 }
 }
