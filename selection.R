@@ -9,7 +9,7 @@
 #' @param P Population size, corresponding to the number of genes or covariates on each chromosome or model considered for recombination. 
 #' @param P_ix a sequence of integers, ending value P. 
 #' 
-#' Author(s):
+#' Author(s): Sean Wu, Luna Luan, Xinyu Liu, and Nina Magnuson.
 #' References: 
 #' Khalid Jebari, Mohammed Madiafi (2013) Selection Methods for Genetic Algorithms. https://www.researchgate.net/publication/259461147_Selection_Methods_for_Genetic_Algorithms. 
 #' @export

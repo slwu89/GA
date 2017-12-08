@@ -11,7 +11,7 @@
 #' @param P Population size, corresponding to the number of genes or covariates on each chromosome or model.
 #' @param tol Optional value indicating relative convergence tolerance. Should be of class numeric.
 #' @param maxIter Optional value indicating the maximum number of iterations. Default is 100.
-#' Author(s):
+#' Author(s): Sean Wu, Luna Luan, Xinyu Liu, and Nina Magnuson.
 #' References
 #' Burnham, K. P. and D. R. Anderson. 2002. Model Selection and Multimodel Inference. Springer-Verlag, New York
 #'
