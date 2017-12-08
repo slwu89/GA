@@ -19,6 +19,19 @@
 #'
 #'
 #' Examples:
+#' y <- as.matrix(mtcars$mpg)
+#' x <- as.matrix(mtcars[2:11])
+#' select(y, x, "gaussian", P=6)
+#'
+#' # beta2, beta5, beta6 are truly null
+#' beta = c(1.52,12.5,0,9.12,21.34,0,0,88.65)
+#' N = 20 # number of observations
+#' x = matrix(NaN,nrow=N,ncol=length(beta)-1)
+#' for(i in 1:ncol(x)){
+#'   x[,i] = rnorm(n = N,mean = i,sd = 1.5)
+#' }
+#' y = (cbind(1,x) %*% beta) + rnorm(n = N)
+#' select(y, x, "gaussian",P=10)
 #' @export
 #'
 
