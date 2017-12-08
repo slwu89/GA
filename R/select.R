@@ -11,10 +11,10 @@
 #
 ###############################################################################
 
-
-#' Select utilizes the genetic algoritim to optimize model selection. Relying on functions: selection, crossover and mutation, new populations of chromosomes correspondng to models are generated, selecting based on AIC, until the optimal model is achieved.
+#' Genetic Algorithm based Variable Selection
 #'
-#'
+#' Select utilizes the genetic algoritim to optimize model selection for generalized linear models.
+#' Relying on functions: \code{\link{selection}}, \code{\link{crossover}} and \code{\link{mutation}}, new populations of chromosomes correspondng to models are generated, selecting based on AIC, until the optimal model is achieved.
 #'
 #' @param y a vector or matrix of responses
 #' @param x a matrix of covariates
@@ -54,7 +54,7 @@ select <- function(y,x,family,k,P,mutation=0.01,ncores=0,fitness_function=stats:
   if (!is.numeric(y)) stop("y should be a vector of numbers")
 
   # check type of regression
-  if(family=="gassian" & all(y %% 1 == 0)){cat("Warning: vector of integer responses but family 'Gaussian' error distribution selected\n")}
+  if(family=="gaussian" & all(y %% 1 == 0)){cat("Warning: vector of integer responses but family 'Gaussian' error distribution selected\n")}
   if(family=="Gamma" & any(y < 0)){stop("Error: family 'Gamma' error distribution selected with negative responses")}
 
   # check mutation rate
