@@ -22,7 +22,7 @@
 #' @export
 #'
 
-select <- function(y,x,family,mutation=0.01,ncores=0,fitness_function=stats::AIC,fitness="rank",P=100,tol=0.0005,maxIter=100L){
+select <- function(y,x,family,k,P,mutation=0.01,ncores=0,fitness_function=stats::AIC,fitness="rank",selection="fitness",tol=0.0005,maxIter=100L){
   # set up parameters (stuff that is made each iteration just make once and save)
   C = ncol(x) #number of chromosomes (models considered)
   P_ix = 1:P #population sequence
@@ -147,7 +147,13 @@ select <- function(y,x,family,mutation=0.01,ncores=0,fitness_function=stats::AIC
     old_fitness=best_fitness
     old_chromosome=best_chromosome
 
-    selection_ix<-selection(pop_fitness,fitness,P,P_ix)
+    # selection
+    switch(selection,
+      fitness = {selection_ix = selection(pop_fitness,fitness,P,P_ix)},
+      tournament = {selection_ix = selection_tournament(pop_fitness,fitness,P,P_ix,k)},
+      {stop("invalid 'selecion' argument: must be character in 'fitness' or 'tournament'")}
+    )
+
     pop = pop[selection_ix]
     # crossover
     new_pop<-crossover(pop,P_combn,P,C)
