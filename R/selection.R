@@ -15,7 +15,7 @@
 #'
 #' Standard selection is used to determine parent chromosomes fitness for recombination in the genetic algorithm for model optimization.
 #' Fitness is assessed based on AIC or an inputted fitness function (must be function to minimize).
-#' AIC is used in two ways: one through rank and another through weight.
+#' AIC is used in two ways: one through rank \eqn{\frac{2\ r_{i}}{P(P+1)}} and another through AIC weights.
 #' Weight takes the absolute fitness to determine probability of recombination while rank uses relative ranking of fitness of models.
 #'  * Selection of chromosomes that contribute their genes to generation t+1 done by resampling the population with probability proportional to weight or rank, with replacement.
 #'
@@ -52,10 +52,10 @@ selection <- function(pop_fitness,fitness,P,P_ix){
 #'
 #' Standard selection is used to determine parent chromosomes fitness for recombination in the genetic algorithm for model optimization.
 #' Fitness is assessed based on AIC or an inputted fitness function (must be function to minimize).
-#' AIC is used in two ways: one through rank and another through weight.
-#'  1. In tournament selection the population is first divded into a random partition of subsets of equal size k.
-#'  2. Then within each partition we select the most fit chromosome for propagation 
-#'
+#' AIC is used in two ways: one through rank \eqn{\frac{2\ r_{i}}{P(P+1)}} and another through AIC weights.
+#'  1. in tournament selection the population is first divded into a random partition of subsets of equal size k
+#'  2. then within each partition we select the most fit chromosome for propagation in the new population
+#'  3. iterate until we have a new population equal in size to the old population
 #'
 #' @param pop_fitness a vector indicating fitness of each chrosomosome in the current generation based on the evaluated fitness function.
 #' @param fitness a character indicating whether to use rank or weight when comparing model fitness.
