@@ -21,7 +21,7 @@
 #' @param C a value representing chromosome size (number of 'alleles'). Should be of class integer, corresponding to the number of columns of input matrix x.
 #'
 #' @export
-crossover<-function(pop,P_combn,P,C){
+crossover <- function(pop,P_combn,P,C){
   new_pop = pop
   pairs = P_combn[sample(x = 1:length(P_combn),size = P,replace = FALSE)]
 
