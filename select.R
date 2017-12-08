@@ -32,6 +32,7 @@
 #' }
 #' y = (cbind(1,x) %*% beta) + rnorm(n = N)
 #' select(y, x, "gaussian",P=10)
+#'
 #' @export
 #'
 
