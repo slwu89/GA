@@ -98,7 +98,7 @@ select <- function(y,x,family,k,P,mutation=0.01,ncores=0,fitness_function=stats:
   stop_condition = FALSE
 
   # check C
-  if(P < C | P > 2*C){
+  if(P <= C | P >= 2*C){
     cat("P ",P," not within suggested population size range C <= P <= 2C\n")
   }
 
