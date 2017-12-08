@@ -1,13 +1,12 @@
 context("mutation")
 
 # I tried not to use other function but ...
-odd_seq_test = seq(from=1,to=100,by=2) 
-even_seq_test = seq(from=2,to=100,by=2)
+P_combn_test = combn(x = 1:100,m = 2,simplify = FALSE)
 selection_ix_test = c(45,27,80,86,85,20,67,54,13,13,54,74,67,67,13,3,42,57,48,17,31,59,3,43,12,100,76,37,38,45,49,80,45,56,55,40,18,67,57,38,38,41,97,24,2,46,40,13,65,38,40,70,49,80,31,51,38,37,45,88,83,52,95,62,49,31,91,54,64,2,70,29,96,86,32,86,58,43,33,40,43,78,83,46,83,74,73,7,93,90,7,50,100,16,24,96,24,46,97,58)
 pop_test = replicate(n = 100, expr = {sample(x = c(0,1), size = 100, replace = TRUE)}, simplify = FALSE)
 pop_test = pop_test[selection_ix_test]
 
-new_pop_test = crossover(pop_test, odd_seq_test, even_seq_test, 100)
+new_pop_test = crossover(pop_test, P_combn_test, 100, 100)
 
 test_that('mutation works', {
   expect_that(mutation(new_pop_test, 100, 1:100, 0.01), is_a("list"))
