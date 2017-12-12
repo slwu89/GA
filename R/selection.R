@@ -36,8 +36,7 @@ selection <- function(pop_fitness,fitness,P,P_ix){
     weights = vapply(X = relative,FUN = function(x){x/sum(relative)},FUN.VALUE = numeric(1))
     # selection
     selection_ix = sample(x = P_ix, size = P, replace = TRUE, prob = weights)
-  }
-  else {
+  } else {
     # sort by rank (given by formula: 2*ri / P(P+1))
     pop_rank = rank(-pop_fitness)
     pop_rank_final = (2*pop_rank) / (P*(P+1))
@@ -62,7 +61,7 @@ selection <- function(pop_fitness,fitness,P,P_ix){
 #' @param fitness a character indicating whether to use rank or weight when comparing model fitness.
 #' @param P Population size, corresponding to the number of genes or covariates on each chromosome or model considered for recombination.
 #' @param P_ix a sequence of integers, ending value P.
-#' @param k size of disjoin subset (must be smaller than P and whose quotient with P is 0, eg; P mod k = 0)
+#' @param k size of each disjoint subset (must be smaller than P and whose quotient with P is 0, eg; P mod k = 0)
 #'
 #' Author(s):
 #' References:

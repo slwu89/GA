@@ -15,7 +15,9 @@ select(y, x, family, k, P, mutation = 0.01, ncores = 0,
 
 \item{family}{a description of the error distribution to be used in the glm fitting. Default is to use gaussian.}
 
-\item{P}{Population size, corresponding to the number of genes or covariates on each chromosome or model.}
+\item{k}{size of disjoin subset (must be smaller than P and whose quotient with P is 0, eg; P mod k = 0)}
+
+\item{P}{population size (number of chromosomes to evaluate)}
 
 \item{mutation}{an optional value specifying the rate at which mutation occurs in the new population.}
 
@@ -23,21 +25,45 @@ select(y, x, family, k, P, mutation = 0.01, ncores = 0,
 
 \item{fitness_function}{optional function to evaluate model fitness. Must be of type closure. Default is to use AIC. Options: "rank" uses relative rank of models based on AIC. Option: "weight" uses absolute value of AIC to determine probability of reproduction in the preceding generation. This option should be used with caution because it can become stuck at a local minimum, as a single model with very low AIC will have large probability of reproduction.}
 
+\item{fitness}{character in 'rank' or 'weight' used in \code{\link{selection}} or \code{\link{selection_tournament}}; select between using AIC weight or ranks to evaluate fitness. For general problems (eg; if fitness_function is \code{\link[stats]{BIC}}) using 'rank' is preferred}
+
+\item{selection}{character in 'fitness' or 'tournament' to select either standard selection \code{\link{selection}} or tournament selection \code{\link{selection_tournament}}}
+
 \item{tol}{Optional value indicating relative convergence tolerance. Should be of class numeric.}
 
-\item{maxIter}{Optional value indicating the maximum number of iterations. Default is 100.
-\itemize{
-\item References
-}
-\enumerate{
-\item Burnham, K. P. and D. R. Anderson. 2002. Model Selection and Multimodel Inference. Springer-Verlag, New York
-\item Geof H. Givens, Jennifer A. Hoeting (2013) Combinatorial Optimization (italicize). Chapter 3 of Computational Statistics (italicize).
-}}
+\item{maxIter}{Optional value indicating the maximum number of iterations. Default is 100.}
 }
 \description{
 Select utilizes the genetic algoritim to optimize model selection for generalized linear models.
-Relying on functions: \code{\link{selection}}, \code{\link{crossover}} and \code{\link{mutation}}, new populations of chromosomes correspondng to models are generated, selecting based on AIC, until the optimal model is achieved.
+Relying on functions: \code{\link{fitness_serial}}, \code{\link{selection}}, \code{\link{crossover}} and \code{\link{mutation}}, new populations of chromosomes correspondng to models are generated, selecting based on AIC, until the algorithm is assumed to converge based on user-specified tolerance or maximum iterations are reached.
+}
+\details{
+\enumerate{
+\item Burnham, K. P. and D. R. Anderson. 2002. Model Selection and Multimodel Inference. Springer-Verlag, New York
+\item Geof H. Givens, Jennifer A. Hoeting (2013) Combinatorial Optimization (italicize). Chapter 3 of Computational Statistics (italicize).
+}
 }
 \examples{
+# GA test
+rm(list=ls());gc()
+set.seed(42L)
+
+# generate data from a specified GLM
+library(simrel)
+library(GA)
+
+N = 500 # number of observations
+p = 100 # number of covariates
+q = floor(p/4) # number of relevant predictors
+m = q # number of relevant components
+ix = sample(x = 1:p,size = m) # location of relevant components
+data = simrel(n=N, p=p, m=m, q=q, relpos=ix, gamma=0.2, R2=0.75)
+
+fitness = "rank" # character in 'value' or 'rank'
+family = "gaussian"
+y = data$Y
+x = data$X
+
+\dontrun{GAoptim = GA::select(y = y,x = x,family = family,k = 20,P = 100,ncores = 0,fitness = "rank",selection = "tournament")}
 
 }

@@ -36,11 +36,11 @@ mutation <- function(new_pop,C,C_ix,mutation){
       next()
     }
     # scatter the mutations across this chromosome
-    mutation_ix = sample(x = C_ix,size = mutation_N,replace = FALSE) # we don't assume          same site can mutate twice
+    mutation_ix = sample(x = C_ix,size = mutation_N,replace = FALSE) # we don't assume same site can mutate twice; has biological plausibility (probability on order of 1/N^2 too small to consider)
     new_pop[[k]][mutation_ix] = 1 - new_pop[[k]][mutation_ix] #changes value 0 or 1
   }
 
-  # check if any all-0 chromosome
+  # check if any all-0 chromosome (possible on small genomes)
   c_sums = sapply(X = new_pop,FUN = sum)
   if(any(c_sums==0)){
     ix = which(c_sums==0)

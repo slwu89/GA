@@ -14,35 +14,49 @@
 #' Genetic Algorithm based Variable Selection
 #'
 #' Select utilizes the genetic algoritim to optimize model selection for generalized linear models.
-#' Relying on functions: \code{\link{selection}}, \code{\link{crossover}} and \code{\link{mutation}}, new populations of chromosomes correspondng to models are generated, selecting based on AIC, until the optimal model is achieved.
+#' Relying on functions: \code{\link{fitness_serial}}, \code{\link{selection}}, \code{\link{crossover}} and \code{\link{mutation}}, new populations of chromosomes correspondng to models are generated, selecting based on AIC, until the algorithm is assumed to converge based on user-specified tolerance or maximum iterations are reached.
+#'
+#'  1. Burnham, K. P. and D. R. Anderson. 2002. Model Selection and Multimodel Inference. Springer-Verlag, New York
+#'  2. Geof H. Givens, Jennifer A. Hoeting (2013) Combinatorial Optimization (italicize). Chapter 3 of Computational Statistics (italicize).
 #'
 #' @param y a vector or matrix of responses
 #' @param x a matrix of covariates
 #' @param family a description of the error distribution to be used in the glm fitting. Default is to use gaussian.
+#' @param k size of disjoin subset (must be smaller than P and whose quotient with P is 0, eg; P mod k = 0)
+#' @param P population size (number of chromosomes to evaluate)
 #' @param mutation an optional value specifying the rate at which mutation occurs in the new population.
 #' @param ncores an optional value indicating the number of cores to use in parallelization. Should be numeric.
 #' @param fitness_function optional function to evaluate model fitness. Must be of type closure. Default is to use AIC. Options: "rank" uses relative rank of models based on AIC. Option: "weight" uses absolute value of AIC to determine probability of reproduction in the preceding generation. This option should be used with caution because it can become stuck at a local minimum, as a single model with very low AIC will have large probability of reproduction.
-#' @param P Population size, corresponding to the number of genes or covariates on each chromosome or model.
+#' @param fitness character in 'rank' or 'weight' used in \code{\link{selection}} or \code{\link{selection_tournament}}; select between using AIC weight or ranks to evaluate fitness. For general problems (eg; if fitness_function is \code{\link[stats]{BIC}}) using 'rank' is preferred
+#' @param selection character in 'fitness' or 'tournament' to select either standard selection \code{\link{selection}} or tournament selection \code{\link{selection_tournament}}
 #' @param tol Optional value indicating relative convergence tolerance. Should be of class numeric.
 #' @param maxIter Optional value indicating the maximum number of iterations. Default is 100.
-#' @param k size of disjoin subset (must be smaller than P and whose quotient with P is 0, eg; P mod k = 0)
-#'
-#'  * References
-#'  1. Burnham, K. P. and D. R. Anderson. 2002. Model Selection and Multimodel Inference. Springer-Verlag, New York
-#'  2. Geof H. Givens, Jennifer A. Hoeting (2013) Combinatorial Optimization (italicize). Chapter 3 of Computational Statistics (italicize).
 #'
 #' @examples
+#' # GA test
+#' rm(list=ls());gc()
+#' set.seed(42L)
+#'
+#' # generate data from a specified GLM
+#' library(simrel)
+#' library(GA)
+#'
+#' N = 500 # number of observations
+#' p = 100 # number of covariates
+#' q = floor(p/4) # number of relevant predictors
+#' m = q # number of relevant components
+#' ix = sample(x = 1:p,size = m) # location of relevant components
+#' data = simrel(n=N, p=p, m=m, q=q, relpos=ix, gamma=0.2, R2=0.75)
+#'
+#' fitness = "rank" # character in 'value' or 'rank'
+#' family = "gaussian"
+#' y = data$Y
+#' x = data$X
+#'
+#' \dontrun{GAoptim = GA::select(y = y,x = x,family = family,k = 20,P = 100,ncores = 0,fitness = "rank",selection = "tournament")}
 #'
 #' @export
 select <- function(y,x,family,k,P,mutation=0.01,ncores=0,fitness_function=stats::AIC,fitness="rank",selection="fitness",tol=0.0005,maxIter=100L){
-  #set up parameters (stuff that is made each iteration just make once and save)
-  #C = ncol(x) #number of chromosomes (models considered)
-  #P_ix = 1:P #population sequence
-  #C_ix = 1:C #chromosome sequence
-  #odd_seq = seq(from=1,to=P,by=2)
-  #even_seq = seq(from=2,to=P,by=2)
-  #P_combn = combn(x = 1:P,m = 2,simplify = FALSE)
-  #stop_condition = FALSE
 
   # sanity checks
   # check x
@@ -55,7 +69,7 @@ select <- function(y,x,family,k,P,mutation=0.01,ncores=0,fitness_function=stats:
 
   # check type of regression
   if(family=="gaussian" & all(y %% 1 == 0)){cat("Warning: vector of integer responses but family 'Gaussian' error distribution selected\n")}
-  if(family=="Gamma" & any(y < 0)){stop("Error: family 'Gamma' error distribution selected with negative responses")}
+  if(family=="gamma" & any(y < 0)){stop("Error: family 'Gamma' error distribution selected with negative responses")}
 
   # check mutation rate
   if (length(mutation) != 1) stop("Please provide only one mutation rate")
@@ -65,9 +79,6 @@ select <- function(y,x,family,k,P,mutation=0.01,ncores=0,fitness_function=stats:
   if (length(P) != 1) stop("Please provide only one population size")
   if (!is.numeric(P)) stop("Population size should be a number")
   if (round(P) != P) stop("Population size should be an integer")
-  #if(P < C | P > 2*C){
-  #  cat("P ",P," not within suggested population size range C <= P <= 2C\n")
-  #}
 
   # check maximum iteration
   if (length(maxIter) != 1) stop("Please provide only one maximum iteration")
@@ -84,124 +95,110 @@ select <- function(y,x,family,k,P,mutation=0.01,ncores=0,fitness_function=stats:
   # check ncores
   if(!is.numeric(ncores)){stop("the nubmer of cores used in a parallelization should be a number")}
   if(ncores<0){stop("the number of cores used in a parallelization should be non negative")}
+  if(ncores>0){
+    ncores = min(ncores,parallel::detectCores()) # ncores should not be greater than the number of cores available
+  }
 
+  # tournament selection; check that choice of k will produce valid disjoint subsets of the P chromosomes
+  if(!selection %in% c("tournament","fitness")){stop("selection must be either 'fitness' or 'tournament'")}
+  if(selection=="tournament"){
+    check = (P%%k != 0 | k >= P)
+    if(length(check)==0 | check){
+      stop("k must be chosen such that it is smaller than P and whose quotient with P is 0, eg; P mod k = 0")
+    }
+  }
 
-  # set up parameters (stuff that is made each iteration just make once and save)
+  # set up parameters once rather than on each iteration
   C = ncol(x) #number of chromosomes (models considered)
   P_ix = 1:P #population sequence
   C_ix = 1:C #chromosome sequence
-  # odd_seq = seq(from=1,to=P,by=2)
-  # even_seq = seq(from=2,to=P,by=2)
-  P_combn = combn(x = 1:P,m = 2,simplify = FALSE)
+  P_combn = combn(x = 1:P,m = 2,simplify = FALSE) # used during crossover
   stop_condition = FALSE
-  hist_fit=vector(mode="numeric")
+  hist_fit = vector(mode="numeric")
 
-  # check C
+  # check C: just warn the user, don't stop them from doing this
   if(P <= C | P >= 2*C){
-    cat("P ",P," not within suggested population size range C <= P <= 2C\n")
+    cat("P ",P," not within suggested population size range C <= P <= 2C, ",C," <= ",2*C,"\n")
   }
 
   # make a population of candidate solutions (use a list because we can apply over it quickly with vapply,lapply,sapply...unlike a matrix)
   new_pop = pop = replicate(n = P, expr = {
     chromosome = sample(x = c(0,1), size = C, replace = TRUE)
-    if(all(chromosome==0)){
-      chromosome[sample(x = C_ix,size = 1,replace = FALSE)] = 1L
+    while(all(chromosome==0)){ # check that we dont get an all-0 chromosome in small problems
+      chromosome[sample(x = C_ix,size = C,replace = FALSE)] = 1L
     }
     return(chromosome)
   }, simplify = FALSE)
   pop_fitness = vector(mode = "numeric", length = P)
 
-  #initialize stopping condition
+  # main loop over generations
   old_fitness = 1
   i = 0
   while(TRUE){
     i = i + 1
 
-    if(ncores == 0){
-      # evaluate fitness of each chromosome
-      pop_fitness = vapply(X = pop,FUN = function(xx, y, x, family){
-        ix_mod = as.logical(xx)
-        mod = stats::glm(y ~ x[,ix_mod], family=family)
-        fitness_function(mod)
-      },FUN.VALUE = numeric(1), y=y, x=x, family=family)
-    }
-    else if(ncores>0){ #evaluate fitness in parallel
-      require(parallel)
-      nCores <- ncores
-      cl <- makeCluster(nCores) # by default this uses sockets
-      pop_fitness <- unlist(parLapply(cl, X=pop, fun = function(xx, y, x, family){
-        #browser()
-        ix_mod = as.logical(xx)
-        mod = stats::glm(y ~ x[,ix_mod], family)
-        fitness_function(mod)
-      }, y, x, family))
-      stopCluster(cl)
+    # evaluate fitness
+    if(ncores > 0){
+      pop_fitness = fitness_parallel(pop,y,x,family,fitness_function,ncores)
+    } else {
+      pop_fitness = fitness_serial(pop,y,x,family,fitness_function)
     }
 
-    # chromosome/model with the best fitness
+    # fittest chromosome
     best_ix = which.min(pop_fitness)
     best_fitness = min(pop_fitness)
     best_chromosome = pop[best_ix]
 
-    #stopping condition
-    #cat("iteration ",i,"\n",best_fitness,"\n")
-    #if( abs((best_fitness-old_fitness) / old_fitness) < tol){ #relative change in fitness
-    #  stop_condition=TRUE
-    #}
-
-    #stopping condition
-    cat("iteration",i,"\n",'Fitness Scores',best_fitness,"\n")
+    # stopping condition
+    cat("iteration",i,"\n",'best fitness score ',best_fitness,"\n")
     if(i>1){
-      if ((abs(min(hist_fit)-best_fitness)/abs(best_fitness))< tol){
-        #print(i)
+      if((abs(min(hist_fit)-best_fitness)/abs(best_fitness))< tol){
         stop_condition=TRUE
       }
     }
 
+    # if stopping criteria met record the best chromosome and break loop
     if(i >= maxIter | stop_condition){
-      #best_fitness=old_fitness
-      #best_chromosome=old_chromosome
-      index=unlist(best_chromosome)
+      index = unlist(best_chromosome)
       break()
+    # otherwise record best fitness value and continue
+    } else {
+      hist_fit = c(hist_fit,best_fitness)
     }
 
-    hist_fit<-c(hist_fit,best_fitness)
-
-    #reiterate if not stopping
-    #old_fitness=best_fitness
-    #old_chromosome=best_chromosome
-
     # selection
-    switch(selection,
-      fitness = {selection_ix = selection(pop_fitness,fitness,P,P_ix)},
-      tournament = {selection_ix = selection_tournament(pop_fitness,fitness,P,P_ix,k)},
-      {stop("invalid 'selecion' argument: must be character in 'fitness' or 'tournament'")}
-    )
-
+    if(fitness=="fitness"){
+      selection_ix = selection(pop_fitness,fitness,P,P_ix)
+    } else {
+      selection_ix = selection_tournament(pop_fitness,fitness,P,P_ix,k)
+    }
     pop = pop[selection_ix]
+
     # crossover
-    new_pop<-crossover(pop,P_combn,P,C)
+    new_pop = crossover(pop,P_combn,P,C)
 
     # mutation
-    pop<-mutation(new_pop,C,C_ix,mutation)
+    pop = mutation(new_pop,C,C_ix,mutation)
 
+  } # end loop
 
-  }
-
-  # return(NULL) # give back something
-  if (i == maxIter){
-    return(list(
+  # give the user a warning if returning simply due to reaching maxIter
+  if(i == maxIter){
+    out = list(
       best_chromosome = best_chromosome[[1]],
       best_fitness = best_fitness,
       best_model = stats::glm(y~x[,as.logical(index)],family=family),
-      count = i, #number of iterations
+      count = i,
       warning = "Reached Maximum Iterations prior to convergence"
-    ))
+    )
+  } else {
+    out = list(
+      best_chromosome = best_chromosome[[1]],
+      best_fitness = best_fitness,
+      best_model = stats::glm(y~x[,as.logical(index)],family=family),
+      count = i
+    )
   }
-  return(list(
-    best_chromosome = best_chromosome[[1]],
-    best_fitness = best_fitness,
-    best_model = stats::glm(y~x[,as.logical(index)],family=family),
-    count = i #number of iterations
-  ))
+
+  return(out)
 }

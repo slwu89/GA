@@ -2,12 +2,7 @@
 % Please edit documentation in R/mutation.R
 \name{mutation}
 \alias{mutation}
-<<<<<<< HEAD
-\title{Mutation of Chromosomes in Genetic Algoritm
-mutation randomly determines if and where on the chromosome, or model, a mutation of one of the genes, or covariates occurs. This is used in the genetic algorithm to introduce randomness not present in the genetic makeup of the population.}
-=======
 \title{Mutation of Chromosomes in Genetic Algoritm}
->>>>>>> 3778fe96569dd1c7102a3c9800aa5252174c779b
 \usage{
 mutation(new_pop, C, C_ix, mutation)
 }
@@ -18,14 +13,6 @@ mutation(new_pop, C, C_ix, mutation)
 
 \item{C_ix}{a sequence of integers from 1 to number of models considered for mutation (C).}
 
-<<<<<<< HEAD
-\item{mutation}{a value indicating the rate at which mutation should occur. Input as rate parameter lambda, or rpois for generating indices of chromosome list where mutation occurs.
-Author(s):
-Examples (?)}
-}
-\description{
-mutation(new_pop,C,C_ix,mutation)
-=======
 \item{mutation}{a value indicating the rate at which mutation should occur. Input as rate parameter lambda, or rpois for generating indices of chromosome list where mutation occurs.}
 }
 \description{
@@ -34,5 +21,4 @@ This is used in the genetic algorithm to introduce randomness not present in the
 Mutation is according to a Poisson process because in the usual case the number of alleles on the chromosome, C,
 is large and probability of mutation is small. The number of mutations is first sampled by \code{\link[stats]{rpois}} and then
 the mutations are scattered randomly across the chromosome.
->>>>>>> 3778fe96569dd1c7102a3c9800aa5252174c779b
 }

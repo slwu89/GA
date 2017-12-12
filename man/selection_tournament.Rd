@@ -15,7 +15,7 @@ selection_tournament(pop_fitness, fitness, P, P_ix, k)
 
 \item{P_ix}{a sequence of integers, ending value P.}
 
-\item{k}{size of disjoin subset (must be smaller than P and whose quotient with P is 0, eg; P mod k = 0)
+\item{k}{size of each disjoint subset (must be smaller than P and whose quotient with P is 0, eg; P mod k = 0)
 
 Author(s):
 References:
