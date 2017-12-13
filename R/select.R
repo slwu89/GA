@@ -38,20 +38,37 @@
 #' set.seed(42L)
 #'
 #' # generate data from a specified GLM
-#' library(simrel)
-#' library(GA)
+#' y <- as.matrix(mtcars$mpg)
+#' y <- as.matrix(mtcars$mpg)
 #'
-#' N = 500 # number of observations
-#' p = 100 # number of covariates
-#' q = floor(p/4) # number of relevant predictors
-#' m = q # number of relevant components
-#' ix = sample(x = 1:p,size = m) # location of relevant components
-#' data = simrel(n=N, p=p, m=m, q=q, relpos=ix, gamma=0.2, R2=0.75)
+#' > select(y = y, x = x, family = "gaussian", P=10, maxIter = 100)
+#' iteration  1 
+#' 157.1209 
+#' iteration  2 
+#' 157.1209 
+#' $best_chromosome
+#' [1] 0 0 0 0 1 1 0 0 1 1
+#' $best_fitness
+#' [1] 157.1209
+#' $best_model
+#' Call:  stats::glm(formula = y ~ x[, as.logical(index)], family = family)
+#' Coefficients:
+#'               (Intercept)  
+#'                   13.5291  
+#'  x[, as.logical(index)]wt  
+#'                   -3.7019  
+#' x[, as.logical(index)]qsec  
+#'                    0.7613  
+#' x[, as.logical(index)]gear  
+#'                    1.9228  
+#' x[, as.logical(index)]carb  
+#'                   -0.7848  
 #'
-#' fitness = "rank" # character in 'value' or 'rank'
-#' family = "gaussian"
-#' y = data$Y
-#' x = data$X
+#' Degrees of Freedom: 31 Total (i.e. Null);  27 Residual
+#' Null Deviance:	    1126 
+#' Residual Deviance: 174.7 	AIC: 157.1
+#' $count
+#' [1] 2
 #'
 #' \dontrun{GAoptim = GA::select(y = y,x = x,family = family,k = 20,P = 100,ncores = 0,fitness = "rank",selection = "tournament")}
 #'
