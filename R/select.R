@@ -37,7 +37,7 @@
 #' rm(list=ls());gc()
 #' set.seed(42L)
 #'
-#' # generate data from a specified GLM
+#' # generate data from mtcars
 #' y <- as.matrix(mtcars$mpg)
 #' x <- as.matrix(mtcars[2:11])
 #'
