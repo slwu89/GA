@@ -39,36 +39,48 @@
 #'
 #' # generate data from a specified GLM
 #' y <- as.matrix(mtcars$mpg)
-#' y <- as.matrix(mtcars$mpg)
+#' x <- as.matrix(mtcars[2:11])
 #'
-#' > select(y = y, x = x, family = "gaussian", P=10, maxIter = 100)
-#' iteration  1 
-#' 157.1209 
-#' iteration  2 
-#' 157.1209 
+#' > select(y = y, x = x, k = 2, family = "gaussian", P=10, maxIter = 10)
+#' P  10  not within suggested population size range C <= P <= 2C,  10  <=  20 
+#' iteration 1 
+#'  best fitness score  157.539 
+#' iteration 2 
+#'  best fitness score  158.501 
+#' iteration 3 
+#'  best fitness score  156.8529 
+#' iteration 4 
+#'  best fitness score  156.8529 
 #' $best_chromosome
-#' [1] 0 0 0 0 1 1 0 0 1 1
+#'  [1] 1 0 1 0 1 0 0 1 0 1
+#' 
 #' $best_fitness
-#' [1] 157.1209
+#' [1] 156.8529
+#' 
 #' $best_model
+#' 
 #' Call:  stats::glm(formula = y ~ x[, as.logical(index)], family = family)
+#' 
 #' Coefficients:
-#'               (Intercept)  
-#'                   13.5291  
-#'  x[, as.logical(index)]wt  
-#'                   -3.7019  
-#' x[, as.logical(index)]qsec  
-#'                    0.7613  
-#' x[, as.logical(index)]gear  
-#'                    1.9228  
+#'                (Intercept)  
+#'                   35.62507  
+#'  x[, as.logical(index)]cyl  
+#'                   -0.81680  
+#'   x[, as.logical(index)]hp  
+#'                   -0.01572  
+#'   x[, as.logical(index)]wt  
+#'                   -2.36223  
+#'   x[, as.logical(index)]am  
+#'                    2.07807  
 #' x[, as.logical(index)]carb  
-#'                   -0.7848  
-#'
-#' Degrees of Freedom: 31 Total (i.e. Null);  27 Residual
+#'                   -0.50441  
+#' 
+#' Degrees of Freedom: 31 Total (i.e. Null);  26 Residual
 #' Null Deviance:	    1126 
-#' Residual Deviance: 174.7 	AIC: 157.1
+#' Residual Deviance: 162.7 	AIC: 156.9
+#' 
 #' $count
-#' [1] 2
+#' [1] 4
 #'
 #' \dontrun{GAoptim = GA::select(y = y,x = x,family = family,k = 20,P = 100,ncores = 0,fitness = "rank",selection = "tournament")}
 #'
