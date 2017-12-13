@@ -1,4 +1,7 @@
-# visualize the GA
+###############################################################################
+# GA function that records population history
+###############################################################################
+
 GA_test <- function(y,x,family,mutation=0.01,fitness_function=stats::AIC,fitness="rank",P=100,tol=0.01,maxIter=100L){
 
   # set up parameters (stuff that is made each iteration just make once and save)
@@ -76,6 +79,10 @@ GA_test <- function(y,x,family,mutation=0.01,fitness_function=stats::AIC,fitness
 }
 
 
+###############################################################################
+# simulate on fake data
+###############################################################################
+
 #  make up some data
 library(simrel)
 set.seed(42L)
@@ -91,6 +98,11 @@ x = data$X
 
 out = GA_test(y = y,x = x,family = "gaussian",maxIter = 100)
 
+
+###############################################################################
+# view evolution of GA (progressively lower AIC)
+###############################################################################
+
 library(viridis)
 library(ggplot2)
 library(reshape2)
@@ -99,7 +111,6 @@ datMelt = lapply(out,function(x){x$AIC})
 datMelt = melt(datMelt)
 colnames(datMelt) = c("AIC","Generation")
 
-# view evolution of GA over generations
 ggplot(data=datMelt) +
   geom_point(aes(x=Generation,y=AIC,color=AIC)) +
   geom_smooth(aes(x=Generation,y=AIC),method="loess") +
@@ -107,8 +118,11 @@ ggplot(data=datMelt) +
   theme_bw()
 
 
-
+###############################################################################
 # view distribution of chromosomes at final generation
+# pdf output at 7.79 x 7.53 for both plots
+###############################################################################
+
 # allele_col = c("#2166ac","#b2182b")
 allele_col = viridis(n = 4)[2:3]
 defaultPars = par()
@@ -119,13 +133,14 @@ par(mar=c(0,0,1,0),mgp=c(0,0,0))
 std_AIC = rep(0,p)
 final_chromosomes = out[[100]]$chromosomes
 
-ylim = c(-60,60)
-xlim = c(0,100)
+ylim = c(-60,60) # for some breathing space
+xlim = c(0,101) # one extra for 'true' chromosome
 plot(1, type="n",axes=F,frame.plot=F,ann=T, xlim=xlim, ylim=ylim)
 mtext(text = "Chromosome Population",side = 3,at=20,line=-2,cex=1.5)
 
 box_ysize = 1
 
+# iterate over population of chromosomes
 for(i in 1:p){
   final_chromosomes[[i]]
   yctr = std_AIC[i]
@@ -156,6 +171,28 @@ for(i in 1:p){
   }
 
 }
+
+# plot 'true' chromosome
+true_chromosome = rep(0,p)
+true_chromosome[ix] = 1
+true_col = c("#2166ac","#b2182b")
+# iterate over a chromosome
+i = 101
+for(j in 1:100){
+  if(as.logical(true_chromosome[j])){
+    c = true_col[1] # 1
+  } else {
+    c = true_col[2] # 0
+  }
+  if(j==1 | j==100){
+    segments(x0 = i,y0 = yseq[j],x1 = i,y1 = yseq[j+1],col = c,lty = 1,lwd = 6.5,lend = 0)
+  } else {
+    segments(x0 = i,y0 = yseq[j],x1 = i,y1 = yseq[j+1],col = c,lty = 1,lwd = 6.5,lend = 2)
+  }
+
+}
+
+
 
 par(mar=defaultPars$mar,mgp=defaultPars$mgp)
 
