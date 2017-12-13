@@ -109,7 +109,8 @@ ggplot(data=datMelt) +
 
 
 # view distribution of chromosomes at final generation
-allele_col = c("#2166ac","#b2182b")
+# allele_col = c("#2166ac","#b2182b")
+allele_col = viridis(n = 4)[2:3]
 defaultPars = par()
 par(mar=c(0,0,1,0),mgp=c(0,0,0))
 
@@ -142,9 +143,9 @@ for(i in 1:p){
   # iterate over a chromosome
   for(j in 1:100){
     if(as.logical(final_chromosomes[[i]][j])){
-      c = allele_col[1]
+      c = allele_col[1] # 1
     } else {
-      c = allele_col[2]
+      c = allele_col[2] # 0
     }
     if(j==1 | j==100){
       segments(x0 = i,y0 = yseq[j],x1 = i,y1 = yseq[j+1],col = c,lty = 1,lwd = 6.5,lend = 0)
