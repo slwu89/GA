@@ -17,5 +17,5 @@ test_that('mutation works', {
 test_that('mutation input error', {
   expect_error(mutation(new_pop = "character", 100, 1:100, 0.01))
   expect_error(mutation(new_pop_test, 100, 1:100, 1.5)) # mutation rate larger than 1
-  expect_error(mutation(new_pop_test, 100, 1:100, -0.2)) # mutation rate negative
+  expect_that( expect_error(object = mutation(new_pop_test, 100, 1:100, -0.2)),gives_warning()) # negative mutation rate
 })
