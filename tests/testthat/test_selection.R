@@ -10,7 +10,8 @@ test_that('selection works', {
   expect_length(selection(pop_fitness_test, "rank", 100, 1:100), 100)
 })
 
-test_that('selection input error', 
-  expect_error(selection(pop_fitness = "character", "weight", 100, 1:100)))
+test_that('selection input error',
+  expect_error(object = selection(pop_fitness = "character", "weight", 100, 1:100))
+  )
 
 

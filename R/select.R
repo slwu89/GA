@@ -42,43 +42,43 @@
 #' x <- as.matrix(mtcars[2:11])
 #'
 #' > select(y = y, x = x, k = 2, family = "gaussian", P=10, maxIter = 10)
-#' P  10  not within suggested population size range C <= P <= 2C,  10  <=  20 
-#' iteration 1 
-#'  best fitness score  157.539 
-#' iteration 2 
-#'  best fitness score  158.501 
-#' iteration 3 
-#'  best fitness score  156.8529 
-#' iteration 4 
-#'  best fitness score  156.8529 
+#' P  10  not within suggested population size range C <= P <= 2C,  10  <=  20
+#' iteration 1
+#'  best fitness score  157.539
+#' iteration 2
+#'  best fitness score  158.501
+#' iteration 3
+#'  best fitness score  156.8529
+#' iteration 4
+#'  best fitness score  156.8529
 #' $best_chromosome
 #'  [1] 1 0 1 0 1 0 0 1 0 1
-#' 
+#'
 #' $best_fitness
 #' [1] 156.8529
-#' 
+#'
 #' $best_model
-#' 
+#'
 #' Call:  stats::glm(formula = y ~ x[, as.logical(index)], family = family)
-#' 
+#'
 #' Coefficients:
-#'                (Intercept)  
-#'                   35.62507  
-#'  x[, as.logical(index)]cyl  
-#'                   -0.81680  
-#'   x[, as.logical(index)]hp  
-#'                   -0.01572  
-#'   x[, as.logical(index)]wt  
-#'                   -2.36223  
-#'   x[, as.logical(index)]am  
-#'                    2.07807  
-#' x[, as.logical(index)]carb  
-#'                   -0.50441  
-#' 
+#'                (Intercept)
+#'                   35.62507
+#'  x[, as.logical(index)]cyl
+#'                   -0.81680
+#'   x[, as.logical(index)]hp
+#'                   -0.01572
+#'   x[, as.logical(index)]wt
+#'                   -2.36223
+#'   x[, as.logical(index)]am
+#'                    2.07807
+#' x[, as.logical(index)]carb
+#'                   -0.50441
+#'
 #' Degrees of Freedom: 31 Total (i.e. Null);  26 Residual
-#' Null Deviance:	    1126 
+#' Null Deviance:	    1126
 #' Residual Deviance: 162.7 	AIC: 156.9
-#' 
+#'
 #' $count
 #' [1] 4
 #'
@@ -147,7 +147,7 @@ select <- function(y,x,family,k,P,mutation=0.01,ncores=0,fitness_function=stats:
 
   # check C: just warn the user, don't stop them from doing this
   if(P <= C | P >= 2*C){
-    cat("P ",P," not within suggested population size range C <= P <= 2C, ",C," <= ",2*C,"\n")
+    cat("P ",P," not within suggested population size range C <= P <= 2C, ",C," < P <= ",2*C,"\n")
   }
 
   # make a population of candidate solutions (use a list because we can apply over it quickly with vapply,lapply,sapply...unlike a matrix)
@@ -196,7 +196,7 @@ select <- function(y,x,family,k,P,mutation=0.01,ncores=0,fitness_function=stats:
     }
 
     # selection
-    if(fitness=="fitness"){
+    if(selection=="fitness"){
       selection_ix = selection(pop_fitness,fitness,P,P_ix)
     } else {
       selection_ix = selection_tournament(pop_fitness,fitness,P,P_ix,k)

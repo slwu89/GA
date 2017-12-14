@@ -48,21 +48,50 @@ Relying on functions: \code{\link{fitness_serial}}, \code{\link{selection}}, \co
 rm(list=ls());gc()
 set.seed(42L)
 
-# generate data from a specified GLM
-library(simrel)
-library(GA)
+# generate data from mtcars
+y <- as.matrix(mtcars$mpg)
+x <- as.matrix(mtcars[2:11])
 
-N = 500 # number of observations
-p = 100 # number of covariates
-q = floor(p/4) # number of relevant predictors
-m = q # number of relevant components
-ix = sample(x = 1:p,size = m) # location of relevant components
-data = simrel(n=N, p=p, m=m, q=q, relpos=ix, gamma=0.2, R2=0.75)
+> select(y = y, x = x, k = 2, family = "gaussian", P=10, maxIter = 10)
+P  10  not within suggested population size range C <= P <= 2C,  10  <=  20
+iteration 1
+ best fitness score  157.539
+iteration 2
+ best fitness score  158.501
+iteration 3
+ best fitness score  156.8529
+iteration 4
+ best fitness score  156.8529
+$best_chromosome
+ [1] 1 0 1 0 1 0 0 1 0 1
 
-fitness = "rank" # character in 'value' or 'rank'
-family = "gaussian"
-y = data$Y
-x = data$X
+$best_fitness
+[1] 156.8529
+
+$best_model
+
+Call:  stats::glm(formula = y ~ x[, as.logical(index)], family = family)
+
+Coefficients:
+               (Intercept)
+                  35.62507
+ x[, as.logical(index)]cyl
+                  -0.81680
+  x[, as.logical(index)]hp
+                  -0.01572
+  x[, as.logical(index)]wt
+                  -2.36223
+  x[, as.logical(index)]am
+                   2.07807
+x[, as.logical(index)]carb
+                  -0.50441
+
+Degrees of Freedom: 31 Total (i.e. Null);  26 Residual
+Null Deviance:	    1126
+Residual Deviance: 162.7 	AIC: 156.9
+
+$count
+[1] 4
 
 \dontrun{GAoptim = GA::select(y = y,x = x,family = family,k = 20,P = 100,ncores = 0,fitness = "rank",selection = "tournament")}
 
