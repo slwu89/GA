@@ -1,3 +1,4 @@
+library(GA)
 context("crossover")
 
 P_combn_test = combn(x = 1:100,m = 2,simplify = FALSE)

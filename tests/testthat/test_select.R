@@ -1,3 +1,4 @@
+library(GA)
 context("select")
 
 y <- as.matrix(mtcars$mpg)
